@@ -307,8 +307,8 @@ function UF:CreateCastBar(self)
 		cb:SetSize(self:GetWidth(), 5)
 	end
 
-	cb.CastingColor = {.33, .33, .33}
-	cb.ChannelingColor = {.33, .33, .33}
+	cb.CastingColor = {.88, .88, .06}
+	cb.ChannelingColor = {.88, .88, .06}
 	cb.notInterruptibleColor = {1, .5, .5}
 	cb.CompleteColor = {.1, .8, 0}
 	cb.FailColor = {1, .1, 0}
