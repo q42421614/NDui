@@ -5,18 +5,58 @@ local cast = ns.cast
 local UF = B:RegisterModule("UnitFrames")
 
 -- Custom colors
-oUF.colors.smooth = {1, 0, 0, .85, .8, .45, .1, .1, .1}
-oUF.colors.power.MANA = {.31, .45, .63}
-oUF.colors.power.SOUL_SHARDS = {.58, .51, .79}
-oUF.colors.power.ENERGY = {.9, .86, .12}
-oUF.colors.power.FURY = {.54, .1, .69}
-oUF.colors.power.INSANITY = {.88, .88, .88}
-oUF.colors.power.FOCUS = {.71, .43, .27}
-oUF.colors.power.RUNES = {0, .82, 1}
-oUF.colors.power.RAGE = {.78, .25, .25}
-oUF.colors.power.HOLY_POWER = {.88, .88, .06}
-oUF.colors.power.CHI = {0, 1, .59}
-oUF.colors.power.ARCANE_CHARGES = {.41, .8, .94}
+oUF.colors.smooth = {1, 0, 0, .85, .8, .45, .23, .23, .23}
+
+oUF.colors.power = {
+	["MANA"]              = {0.31, 0.45, 0.63},
+	["INSANITY"]          = {0.40, 0.00, 0.80},
+	["MAELSTROM"]         = {0.00, 0.50, 1.00},
+	["LUNAR_POWER"]       = {0.93, 0.51, 0.93},
+	["HOLY_POWER"]        = {0.95, 0.90, 0.60},
+	["RAGE"]              = {0.69, 0.31, 0.31},
+	["FOCUS"]             = {0.71, 0.43, 0.27},
+	["ENERGY"]            = {0.65, 0.63, 0.35},
+	["CHI"]               = {0.71, 1.00, 0.92},
+	["RUNES"]             = {0.77, 0.12, 0.23}, -- RuneBar Color
+	["SOUL_SHARDS"]       = {0.50, 0.32, 0.55},
+	["FURY"]              = {0.78, 0.26, 0.99},
+	["PAIN"]              = {1.00, 0.61, 0.00},
+	["RUNIC_POWER"]       = {0.00, 0.82, 1.00},
+	["AMMOSLOT"]          = {0.80, 0.60, 0.00},
+	["FUEL"]              = {0.00, 0.55, 0.50},
+	["POWER_TYPE_STEAM"]  = {0.55, 0.57, 0.61},
+	["POWER_TYPE_PYRITE"] = {0.60, 0.09, 0.17},
+	["ALTPOWER"]          = {0.00, 1.00, 1.00},
+	["STAGGER"] = {
+       	{0.52, 1.00, 0.52}, 
+		{1.00, 0.98, 0.72},
+		{1.00, 0.42, 0.42},
+	},
+}
+oUF.colors.class = {
+	["HUNTER"]      = { 0.67, 0.83, 0.45 },
+	["WARLOCK"]     = { 0.53, 0.53, 0.93 },
+	["PRIEST"]      = { 0.65, 0.84, 1.00 },
+	["PALADIN"]     = { 0.96, 0.55, 0.73 },
+	["MAGE"]        = { 0.25, 0.78, 0.92 },
+	["ROGUE"]       = { 1.00, 0.96, 0.41 },
+	["DRUID"]       = { 1.00, 0.49, 0.04 },
+	["SHAMAN"]      = { 0.00, 0.44, 0.87 },
+	["WARRIOR"]     = { 0.78, 0.61, 0.43 },
+	["DEATHKNIGHT"] = { 0.77, 0.12, 0.23 },
+	["MONK"]        = { 0.00, 1.00, 0.59 },
+	["DEMONHUNTER"] = { 0.64, 0.19, 0.79 },
+}
+oUF.colors.reaction = {
+	[1] = { 0.80, 0.30, 0.22 }, -- Hated
+	[2] = { 0.80, 0.30, 0.22 }, -- Hostile
+	[3] = { 0.75, 0.27, 0.00 }, -- Unfriendly
+	[4] = { 0.90, 0.70, 0.00 }, -- Neutral
+	[5] = { 0.00, 0.60, 0.10 }, -- Friendly
+	[6] = { 0.00, 0.60, 0.10 }, -- Honored
+	[7] = { 0.00, 0.60, 0.10 }, -- Revered
+	[8] = { 0.00, 0.60, 0.10 }, -- Exalted
+}
 
 -- Various values
 local function retVal(self, val1, val2, val3, val4)
@@ -106,11 +146,11 @@ function UF:CreateHealthText(self)
 
 	if self.mystyle == "player" then
 		name:ClearAllPoints()
-		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -2)
+		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 12, -5)
 		self:Tag(name, " [color][name]")
 	elseif self.mystyle == "target" then
 		name:ClearAllPoints()
-		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -2)
+		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 12, -5)
 		self:Tag(name, "[fulllevel] [color][name][afkdnd]")
 	elseif self.mystyle == "focus" then
 		self:Tag(name, "[color][name][afkdnd]")
@@ -192,14 +232,24 @@ function UF:CreatePortrait(self)
 	if not NDuiDB["UFs"]["Portrait"] then return end
 
 	local portrait = CreateFrame("PlayerModel", nil, self.Health)
-	portrait:SetAllPoints()
-	portrait:SetAlpha(.2)
-	self.Portrait = portrait
+	if 	self.mystyle == "player" then
+		portrait:SetSize(52, 52)
+		portrait:SetPoint("LEFT", self.Health, -53, 0)
+		self.Portrait = portrait
+	elseif self.mystyle == "target" then
+		portrait:SetSize(52, 52)
+		portrait:SetPoint("RIGHT", self.Health, 53, 0)
+		self.Portrait = portrait
+	else
+		portrait:SetAllPoints()
+		portrait:SetAlpha(.2)
+		self.Portrait = portrait
 
-	self.Health.bg:ClearAllPoints()
-	self.Health.bg:SetPoint("BOTTOMLEFT", self.Health:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-	self.Health.bg:SetPoint("TOPRIGHT", self.Health)
-	self.Health.bg:SetParent(self)
+		self.Health.bg:ClearAllPoints()
+		self.Health.bg:SetPoint("BOTTOMLEFT", self.Health:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
+		self.Health.bg:SetPoint("TOPRIGHT", self.Health)
+		self.Health.bg:SetParent(self)
+	end
 end
 
 local roleTexCoord = {
