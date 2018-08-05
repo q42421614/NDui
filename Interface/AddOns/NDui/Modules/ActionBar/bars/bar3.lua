@@ -4,7 +4,7 @@ local Bar = B:GetModule("Actionbar")
 local cfg = C.bars.bar3
 
 function Bar:CreateBar3()
-	local padding, margin = 2, 2
+	local padding, margin = 2, 5
 	local num = NUM_ACTIONBAR_BUTTONS
 	local buttonList = {}
 	local layout = NDuiDB["Actionbar"]["Style"]

@@ -6,7 +6,7 @@ local cfg = C.bars.bar1
 function module:OnLogin()
 	if not NDuiDB["Actionbar"]["Enable"] then return end
 
-	local padding, margin = 2, 2
+	local padding, margin = 2, 5
 	local num = NUM_ACTIONBAR_BUTTONS
 	local buttonList = {}
 	local layout = NDuiDB["Actionbar"]["Style"]
