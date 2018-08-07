@@ -140,6 +140,8 @@ function UF:CreateHealthText(self)
 		name:SetWidth(self:GetWidth()*.85)
 		name:ClearAllPoints()
 		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 5)
+	elseif self.mystyle == "tot" then
+		name:SetWidth(self:GetWidth()*.85)
 	else
 		name:SetWidth(self:GetWidth()*.55)
 	end
@@ -155,7 +157,12 @@ function UF:CreateHealthText(self)
 	elseif self.mystyle == "focus" then
 		self:Tag(name, "[color][name][afkdnd]")
 	elseif self.mystyle == "nameplate" then
-		self:Tag(name, "[nplevel][name]")
+		local level = self:CreateFontString(nil, "OVERLAY")
+		level:SetJustifyH("LEFT")
+		level:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 5)
+		level:SetFont(DB.TipFont[1], 11, DB.TipFont[3])
+		self:Tag(level, "[fulllevel]")
+		self:Tag(name, "[name]")
 	else
 		self:Tag(name, "[color][name]")
 	end
@@ -169,7 +176,9 @@ function UF:CreateHealthText(self)
 			self:Tag(hpval, "[DDG]")
 		end
 	elseif self.mystyle == "nameplate" then
-		hpval:SetPoint("RIGHT", self, "TOPRIGHT", 0, 3)
+		hpval:ClearAllPoints()
+		--hpval:SetFont(DB.TipFont[1], 12, DB.TipFont[3])
+		hpval:SetPoint("CENTER", self, "CENTER", 0, 0)
 		self:Tag(hpval, "[nphp]")
 	elseif self.mystyle == "player" or self.mystyle == "target" then
 		hpval:ClearAllPoints()

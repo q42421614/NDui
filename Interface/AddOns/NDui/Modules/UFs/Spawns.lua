@@ -65,7 +65,7 @@ end
 
 local function CreateToTStyle(self)
 	self.mystyle = "tot"
-	self:SetSize(120, 18)
+	self:SetSize(130, 20)
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -108,6 +108,7 @@ local function CreateBossStyle(self)
 	UF:CreateHealthText(self)
 	UF:CreatePowerBar(self)
 	UF:CreatePowerText(self)
+	UF:CreatePortrait(self)
 	UF:CreateCastBar(self)
 	UF:CreateRaidMark(self)
 	UF:CreateAltPower(self)
