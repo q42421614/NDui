@@ -180,9 +180,13 @@ function UF:CreateHealthText(self)
 		--hpval:SetFont(DB.TipFont[1], 12, DB.TipFont[3])
 		hpval:SetPoint("CENTER", self, "CENTER", 0, 0)
 		self:Tag(hpval, "[nphp]")
-	elseif self.mystyle == "player" or self.mystyle == "target" then
+	elseif self.mystyle == "player" then
 		hpval:ClearAllPoints()
 		hpval:SetPoint("LEFT", self, "LEFT", 10, 0)
+		self:Tag(hpval, "[hp]")
+	elseif self.mystyle == "target" then
+		hpval:ClearAllPoints()
+		hpval:SetPoint("RIGHT", self, "RIGHT", -10, 0)
 		self:Tag(hpval, "[hp]")
 	else
 		self:Tag(hpval, "[hp]")
@@ -230,9 +234,12 @@ function UF:CreatePowerText(self)
 	textFrame:SetAllPoints(self.Power)
 
 	local ppval = B.CreateFS(textFrame, retVal(self, 13, 12, 12), "", false, "RIGHT", -3, 2)
-	if 	self.mystyle == "player" or self.mystyle == "target" then
+	if 	self.mystyle == "player" then
 		ppval:ClearAllPoints()
 		ppval:SetPoint("RIGHT", self, "RIGHT", -5, 0)
+	elseif self.mystyle == "target" then
+		ppval:ClearAllPoints()
+		ppval:SetPoint("LEFT", self, "LEFT", 5, 0)
 	end
 	self:Tag(ppval, "[color][power]")
 end
