@@ -216,11 +216,11 @@ function module:RecycleBin()
 
 					if child:GetObjectType() == "Button" then
 						child:SetHighlightTexture(DB.bdTex) -- prevent nil function
-						child:GetHighlightTexture():SetColorTexture(1, 1, 1, .3)
+						child:GetHighlightTexture():SetColorTexture(1, 1, 1, .25)
 					elseif child:GetObjectType() == "Frame" then
 						child.highlight = child:CreateTexture(nil, "HIGHLIGHT")
 						child.highlight:SetAllPoints()
-						child.highlight:SetColorTexture(1, 1, 1, .3)
+						child.highlight:SetColorTexture(1, 1, 1, .25)
 					end
 					B.CreateSD(child, 3, 3)
 
@@ -360,8 +360,7 @@ function module:SetupMinimap()
 	}
 
 	for _, v in pairs(frames) do
-		_G[v]:Hide()
-		_G[v].Show = B.Dummy
+		B.HideObject(_G[v])
 	end
 	MinimapCluster:EnableMouse(false)
 	Minimap:SetArchBlobRingScalar(0)
