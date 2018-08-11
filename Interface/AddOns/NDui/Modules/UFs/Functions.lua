@@ -442,23 +442,25 @@ function UF:CreateCastBar(self)
 	self.Castbar = cb
 end
 
-function UF:CreateMirrorBar()
-	for _, bar in pairs({"MirrorTimer1", "MirrorTimer2", "MirrorTimer3"}) do   
-		_G[bar]:GetRegions():Hide()
-		_G[bar.."Border"]:Hide()
-		_G[bar]:SetParent(UIParent)
-		_G[bar]:SetScale(1)
-		_G[bar]:SetHeight(15)
-		_G[bar]:SetWidth(280)
-		_G[bar.."Background"] = _G[bar]:CreateTexture(bar.."Background", "BACKGROUND", _G[bar])
-		_G[bar.."Background"]:SetTexture(DB.normTex)
-		_G[bar.."Background"]:SetAllPoints(bar)
-		_G[bar.."Background"]:SetVertexColor(0, 0, 0, .5)
-		_G[bar.."Text"]:SetFont(unpack(DB.Font))
-		_G[bar.."Text"]:ClearAllPoints()
-		_G[bar.."Text"]:SetPoint("CENTER")
-		_G[bar.."StatusBar"]:SetAllPoints(_G[bar])
-		B.CreateSD(_G[bar], 3, 3)
+function UF:ReskinMirrorBars()
+	local previous
+	for i = 1, 3 do
+		local bar = _G["MirrorTimer"..i]
+		B.StripTextures(bar, true)
+		bar:SetSize(280, 15)
+
+		local bg = B.CreateBG(bar, 3)
+		B.CreateBD(bg)
+		B.CreateTex(bg)
+
+		local statusbar = _G["MirrorTimer"..i.."StatusBar"]
+		statusbar:SetAllPoints()
+		statusbar:SetStatusBarTexture(DB.normTex)
+
+		if previous then
+			bar:SetPoint("TOP", previous, "BOTTOM", 0, -5)
+		end
+		previous = bar
 	end
 end
 
@@ -695,6 +697,18 @@ local function postUpdateClassPower(element, cur, max, diff, powerType, event)
 	end
 end
 
+local function postUpdateRunes(element, runemap)
+	for index, runeID in next, runemap do
+		local rune = element[index]
+		local runeReady = select(3, GetRuneCooldown(runeID))
+		if rune:IsShown() and not runeReady then
+			rune:SetAlpha(.6)
+		else
+			rune:SetAlpha(1)
+		end
+	end
+end
+
 function UF:CreateClassPower(self)
 	if self.mystyle == "PlayerPlate" then
 		width, height = self:GetWidth(), self:GetHeight()*2 + 3
@@ -732,6 +746,7 @@ function UF:CreateClassPower(self)
 	if DB.MyClass == "DEATHKNIGHT" then
 		bars.colorSpec = true
 		if NDuiDB["UFs"]["SortRunes"] then bars.sortOrder = "asc" end
+		bars.PostUpdate = postUpdateRunes
 		self.Runes = bars
 	else
 		bars.PostUpdate = postUpdateClassPower
