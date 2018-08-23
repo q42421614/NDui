@@ -95,11 +95,8 @@ L["Bar5 Fade"] = "右邊快捷列2漸隱"
 L["Enable AuraWatch"] = "啟用技能監視"
 L["AuraWatch ClickThrough"] = "禁用技能監視的提示訊息（點擊穿越）"
 L["Enable Reminder"] = "啟用重要技能缺失提示"
-<<<<<<< HEAD
 L["Enable BloodyHell"] = "啟用血DK助手"
 L["BloodyHell"] = "血DK助手"
-=======
->>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 L["Enable Stagger"] = "啟用釀酒助手"
 L["Stagger"] = "坦僧助手"
 L["Enable Totems"] = "啟用薩滿圖騰助手"
@@ -452,9 +449,4 @@ L["UFs ExtraMana"] = "顯示額外法力值"
 L["Tooltip Scale"] = "滑鼠提示框縮放"
 L["Differ WhipserColor"] = "為密語雙方使用不同顔色"
 L["Map Reveal"] = "去除地圖迷霧"
-<<<<<<< HEAD
 L["Zone Ability"] = "區域能力按鈕"
-=======
-L["Zone Ability"] = "區域能力按鈕"
-L["Enable ClassAuras"] = "資源條添加部分職業監控"
->>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master

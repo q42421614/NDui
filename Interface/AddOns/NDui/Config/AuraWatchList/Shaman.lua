@@ -66,11 +66,6 @@ local list = {
 		{AuraID = 260734, UnitID = "player"},	-- 元素宗师
 		{AuraID = 263806, UnitID = "player"},	-- 呼啸狂风
 		{AuraID = 191634, UnitID = "player"},	-- 风暴守护者
-<<<<<<< HEAD
-=======
-		{AuraID = 202004, UnitID = "player"},	-- 山崩
-		{AuraID = 262652, UnitID = "player"},	-- 强风
->>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 	},
 	["Focus Aura"] = {		-- 焦点光环组
 		{AuraID = 51514, UnitID = "focus", Caster = "player"},	-- 妖术
