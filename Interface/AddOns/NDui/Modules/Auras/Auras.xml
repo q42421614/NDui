@@ -1,7 +1,10 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Buff.lua"/>
 	<Script file="Reminder.lua"/>
+<<<<<<< HEAD
 	<Script file="BloodyHell.lua"/>
+=======
+>>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 	<Script file="Stagger.lua"/>
 	<Script file="Totems.lua"/>
 	<Script file="AuraWatch.lua"/>

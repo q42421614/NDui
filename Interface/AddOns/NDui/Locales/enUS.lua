@@ -95,8 +95,11 @@ L["Bar5 Fade"] = "RightBar2 Fading"
 L["Enable AuraWatch"] = "Enable Aurawatch"
 L["AuraWatch ClickThrough"] = "Disable AuraWatch Tooltip (ClickThrough)"
 L["Enable Reminder"] = "Special Aura Reminder"
+<<<<<<< HEAD
 L["Enable BloodyHell"] = "DK BloodHelper"
 L["BloodyHell"] = "BloodHelper"
+=======
+>>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 L["Enable Stagger"] = "Monk Stagger Tool"
 L["Stagger"] = "Stagger Tool"
 L["Enable Totems"] = "Totems Bar"

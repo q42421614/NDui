@@ -30,7 +30,10 @@ local defaultSettings = {
 	Auras = {
 		Reminder = true,
 		Stagger = true,
+<<<<<<< HEAD
 		BloodyHell = true,
+=======
+>>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 		Totems = true,
 		DestroyTotems = true,
 		HunterTool = true,
@@ -342,12 +345,21 @@ local optionList = {		-- type, key, value, name, horizon, doubleline
 		{1, "AuraWatch", "ClickThrough", L["AuraWatch ClickThrough"]},
 		{},--blank
 		{1, "Auras", "Reminder", L["Enable Reminder"]},
+<<<<<<< HEAD
 		{1, "Auras", "BloodyHell", L["Enable BloodyHell"]},
 		{1, "Auras", "Stagger", L["Enable Stagger"]},
 		{1, "Auras", "Statue", L["Enable Statue"]},
 		{1, "Auras", "Totems", L["Enable Totems"]},
 		{1, "Auras", "DestroyTotems", L["Destroy Totems"], true},
 		{1, "Auras", "HunterTool", L["Enable HunterTool"]},
+=======
+		{1, "Auras", "Stagger", L["Enable Stagger"], true},
+		{1, "Auras", "Statue", L["Enable Statue"]},
+		{1, "Auras", "Totems", L["Enable Totems"], true},
+		{},--blank
+		{1, "Nameplate", "ShowPlayerPlate", "|cff00cc4c"..L["Enable PlayerPlate"]},
+		{1, "Auras", "ClassAuras", L["Enable ClassAuras"], true},
+>>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 	},
 	[7] = {
 		{1, "Skins", "RM", L["Raid Manger"]},

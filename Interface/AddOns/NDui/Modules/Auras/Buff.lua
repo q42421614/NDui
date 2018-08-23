@@ -28,11 +28,15 @@ function module:OnLogin()
 	BuffFrame.ignoreFramePositionManager = true
 
 	-- Elements
+<<<<<<< HEAD
 	if DB.MyClass == "DEATHKNIGHT" then
 		self:BloodyHell()
 	elseif DB.MyClass == "HUNTER" then
 		self:HunterTool()
 	elseif DB.MyClass == "MONK" then
+=======
+	if DB.MyClass == "MONK" then
+>>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 		self:Stagger()
 		self:MonkStatue()
 	elseif DB.MyClass == "SHAMAN" then

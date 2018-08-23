@@ -3,7 +3,11 @@
 ## X-Credits: Elv, Freebaser, Haleth, Haste, Leatrix, Lightspark, Loshine, Neavo, Paopao001, Qulight, Ray, Rubgrsch, Zork.
 ## Author: Siweia
 ## Notes: More than an UI.
+<<<<<<< HEAD
 ## Version: 3.5.1
+=======
+## Version: 3.5.6
+>>>>>>> parent of 9a462aa... Merge pull request #7 from siweia/master
 ## X-Support: BfA
 ## X-Website: http://bbs.nga.cn/read.php?tid=5483616
 ## SavedVariables: NDuiADB
