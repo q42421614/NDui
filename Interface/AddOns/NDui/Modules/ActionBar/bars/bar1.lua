@@ -5,11 +5,11 @@ local cfg = C.bars.bar1
 
 function module:OnLogin()
 	if not NDuiDB["Actionbar"]["Enable"] then return end
-	if NDuiDB["Actionbar"]["Style"] == 5 then NDuiDB["Actionbar"]["Style"] = 1 end
 
 	local padding, margin = 2, 5
 	local num = NUM_ACTIONBAR_BUTTONS
 	local buttonList = {}
+	local layout = NDuiDB["Actionbar"]["Style"]
 
 	--create the frame to hold the buttons
 	local frame = CreateFrame("Frame", "NDui_ActionBar1", UIParent, "SecureHandlerStateTemplate")

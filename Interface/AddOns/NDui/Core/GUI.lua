@@ -29,10 +29,12 @@ local defaultSettings = {
 	},
 	Auras = {
 		Reminder = true,
+		Stagger = true,
+		BloodyHell = true,
 		Totems = true,
 		DestroyTotems = true,
+		HunterTool = true,
 		Statue = true,
-		ClassAuras = true,
 	},
 	AuraWatch = {
 		Enable = true,
@@ -71,6 +73,7 @@ local defaultSettings = {
 		PetCombatText = true,
 		RaidClickSets = false,
 		ShowTeamIndex = false,
+		ShowPlayerPlate = false,
 		SortRunes = true,
 		AddPower = true,
 	},
@@ -120,7 +123,6 @@ local defaultSettings = {
 		ShowUnitPower = true,
 		ShowPowerList = "",
 		VerticalSpacing = .7,
-		ShowPlayerPlate = false,
 	},
 	Skins = {
 		DBM = true,
@@ -312,6 +314,7 @@ local optionList = {		-- type, key, value, name, horizon, doubleline
 	},
 	[5] = {
 		{1, "Nameplate", "Enable", L["Enable Nameplate"]},
+		{1, "Nameplate", "ShowPlayerPlate", "|cff00cc4c"..L["Enable PlayerPlate"], true},
 		{},--blank
 		{1, "Nameplate", "ColorBorder", L["Auras Border"]},
 		{1, "Nameplate", "AllAuras", L["Show All Auras"], true},
@@ -338,12 +341,13 @@ local optionList = {		-- type, key, value, name, horizon, doubleline
 		{1, "AuraWatch", "Enable", L["Enable AuraWatch"]},
 		{1, "AuraWatch", "ClickThrough", L["AuraWatch ClickThrough"]},
 		{},--blank
-		{1, "Auras", "Statue", L["Enable Statue"]},
-		{1, "Auras", "Totems", L["Enable Totems"], true},
 		{1, "Auras", "Reminder", L["Enable Reminder"]},
-		{},--blank
-		{1, "Nameplate", "ShowPlayerPlate", "|cff00cc4c"..L["Enable PlayerPlate"]},
-		{1, "Auras", "ClassAuras", L["Enable ClassAuras"], true},
+		{1, "Auras", "BloodyHell", L["Enable BloodyHell"]},
+		{1, "Auras", "Stagger", L["Enable Stagger"]},
+		{1, "Auras", "Statue", L["Enable Statue"]},
+		{1, "Auras", "Totems", L["Enable Totems"]},
+		{1, "Auras", "DestroyTotems", L["Destroy Totems"], true},
+		{1, "Auras", "HunterTool", L["Enable HunterTool"]},
 	},
 	[7] = {
 		{1, "Skins", "RM", L["Raid Manger"]},

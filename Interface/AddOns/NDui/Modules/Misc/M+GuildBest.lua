@@ -1,5 +1,6 @@
 local _, ns = ...
 local B, C, L, DB = unpack(ns)
+local oUF = ns.oUF or oUF
 local module = B:GetModule("Misc")
 
 function module:GuildBest()

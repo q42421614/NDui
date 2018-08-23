@@ -67,17 +67,16 @@ local function ReanchorAlert()
 	end
 
 	if CharacterMicroButtonAlert then
-		hooksecurefunc(CharacterMicroButtonAlert, "SetPoint", function(self, _, parent)
-			if parent ~= UIParent then
-				self:ClearAllPoints()
-				self:SetPoint("BOTTOM", UIParent, "BOTTOM", -175, 40)
-			end
-		end)
+		CharacterMicroButtonAlert:ClearAllPoints()
+		CharacterMicroButtonAlert:SetPoint("BOTTOM", UIParent, "BOTTOM", -175, 40)
+		CharacterMicroButtonAlert.SetPoint = B.Dummy
 	end
 end
 
 function module:MicroMenu()
 	-- Taint Fix
+	ToggleAllBags()
+	ToggleAllBags()
 	ToggleFrame(SpellBookFrame)
 	ToggleFrame(SpellBookFrame)
 

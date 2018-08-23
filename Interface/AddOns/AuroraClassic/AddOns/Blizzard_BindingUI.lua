@@ -15,7 +15,6 @@ C.themes["Blizzard_BindingUI"] = function()
 	KeyBindingFrame.bindingsContainer:SetBackdrop(nil)
 
 	F.CreateBD(KeyBindingFrame)
-	F.CreateSD(KeyBindingFrame)
 	F.Reskin(KeyBindingFrame.defaultsButton)
 	F.Reskin(KeyBindingFrame.unbindButton)
 	F.Reskin(KeyBindingFrame.okayButton)
