@@ -373,8 +373,8 @@ function UF:CreateCastBar(self)
 		cb:SetSize(self:GetWidth(), 5)
 	end
 
-	cb.CastingColor = {0.65, 0.63, 0.35}
-	cb.ChannelingColor = {0.65, 0.63, 0.35}
+	cb.CastingColor = oUF.colors.class[DB.MyClass]
+	cb.ChannelingColor = oUF.colors.class[DB.MyClass]
 	cb.notInterruptibleColor = {1, .5, .5}
 	cb.CompleteColor = {.1, .8, 0}
 	cb.FailColor = {1, .1, 0}
