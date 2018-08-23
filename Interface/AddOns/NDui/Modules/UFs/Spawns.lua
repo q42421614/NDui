@@ -19,9 +19,9 @@ local function CreatePlayerStyle(self)
 	UF:CreateIcons(self)
 	UF:CreatePrediction(self)
 	UF:CreateFCT(self)
-	UF:CreateMirrorBar()
+	UF:ReskinMirrorBars()
 
-	if not NDuiDB["Nameplate"]["Enable"] or not NDuiDB["Nameplate"]["ShowPlayerPlate"] then UF:CreateClassPower(self) end
+	if not NDuiDB["Nameplate"]["ShowPlayerPlate"] then UF:CreateClassPower(self) end
 	if not NDuiDB["Misc"]["ExpRep"] then UF:CreateExpRepBar(self) end
 	if NDuiDB["UFs"]["PlayerDebuff"] then UF:CreateDebuffs(self) end
 	if NDuiDB["UFs"]["SwingBar"] then UF:CreateSwing(self) end
@@ -159,11 +159,6 @@ oUF:RegisterStyle("ToT", CreateToTStyle)
 oUF:RegisterStyle("Focus", CreateFocusStyle)
 oUF:RegisterStyle("FocusTarget", CreateFocusTargetStyle)
 oUF:RegisterStyle("Pet", CreatePetStyle)
-oUF:RegisterStyle("Boss", CreateBossStyle)
-oUF:RegisterStyle("Arena", CreateArenaStyle)
-oUF:RegisterStyle("Raid", CreateRaidStyle)
-oUF:RegisterStyle("Nameplates", UF.CreatePlates)
-oUF:RegisterStyle("PlayerPlate", UF.CreatePlayerPlate)
 
 -- Spawns
 function UF:OnLogin()
@@ -173,14 +168,16 @@ function UF:OnLogin()
 		self:CreateUnitTable()
 		self:CreatePowerUnitTable()
 
+		oUF:RegisterStyle("Nameplates", UF.CreatePlates)
 		oUF:SetActiveStyle("Nameplates")
 		oUF:SpawnNamePlates("oUF_NPs", UF.PostUpdatePlates)
+	end
 
-		if NDuiDB["Nameplate"]["ShowPlayerPlate"] then
-			oUF:SetActiveStyle("PlayerPlate")
-			local plate = oUF:Spawn("player", "oUF_PlayerPlate", true)
-			B.Mover(plate, L["PlayerNP"], "PlayerPlate", C.UFs.PlayerPlate, plate:GetWidth(), 20)
-		end
+	if NDuiDB["Nameplate"]["ShowPlayerPlate"] then
+		oUF:RegisterStyle("PlayerPlate", UF.CreatePlayerPlate)
+		oUF:SetActiveStyle("PlayerPlate")
+		local plate = oUF:Spawn("player", "oUF_PlayerPlate", true)
+		B.Mover(plate, L["PlayerNP"], "PlayerPlate", C.UFs.PlayerPlate, plate:GetWidth(), 20)
 	end
 
 	-- Default Clicksets for RaidFrame
@@ -212,6 +209,7 @@ function UF:OnLogin()
 		B.Mover(focustarget, L["FotUF"], "FotUF", C.UFs.FoTPos, 120, 30)
 
 		if NDuiDB["UFs"]["Boss"] then
+			oUF:RegisterStyle("Boss", CreateBossStyle)
 			oUF:SetActiveStyle("Boss")
 			local boss = {}
 			for i = 1, MAX_BOSS_FRAMES do
@@ -225,6 +223,7 @@ function UF:OnLogin()
 		end
 
 		if NDuiDB["UFs"]["Arena"] then
+			oUF:RegisterStyle("Arena", CreateArenaStyle)
 			oUF:SetActiveStyle("Arena")
 			local arena = {}
 			for i = 1, 5 do
@@ -293,6 +292,7 @@ function UF:OnLogin()
 		CompactRaidFrameManager.Show = CompactRaidFrameManager.Hide
 
 		-- Group Styles
+		oUF:RegisterStyle("Raid", CreateRaidStyle)
 		oUF:SetActiveStyle("Raid")
 
 		local numGroups = NDuiDB["UFs"]["NumGroups"]
