@@ -65,6 +65,8 @@ local list = {
 		{AuraID = 113858, UnitID = "player"},	-- 黑暗灵魂：动荡
 		{AuraID = 113860, UnitID = "player"},	-- 黑暗灵魂：哀难
 		{AuraID = 266091, UnitID = "player"},	-- 统御魔典
+		{AuraID = 264571, UnitID = "player"},	-- 夜幕
+		{AuraID = 266030, UnitID = "player"},	-- 熵能返转
 	},
 	["Focus Aura"] = {		-- 焦点光环组
 		{AuraID = 980, UnitID = "focus", Caster = "player"},		-- 痛楚
@@ -80,7 +82,6 @@ local list = {
 	["Spell Cooldown"] = {	-- 冷却计时组
 		{SlotID = 13, UnitID = "player"},		-- 饰品1
 		{SlotID = 14, UnitID = "player"},		-- 饰品2
-		{SpellID = 20707, UnitID = "player"},	-- 灵魂石
 	},
 }
 

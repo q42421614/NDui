@@ -6,7 +6,7 @@ local UF = B:GetModule("UnitFrames")
 -- Units
 local function CreatePlayerStyle(self)
 	self.mystyle = "player"
-	self:SetSize(245, 24*NDuiDB["UFs"]["HeightScale"]) 
+	self:SetSize(245, 24*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -19,18 +19,18 @@ local function CreatePlayerStyle(self)
 	UF:CreateIcons(self)
 	UF:CreatePrediction(self)
 	UF:CreateFCT(self)
-	UF:CreateMirrorBar()
+	UF:ReskinMirrorBars()
+	UF:CreateAddPower(self)
 
-	if not NDuiDB["Nameplate"]["Enable"] or not NDuiDB["Nameplate"]["ShowPlayerPlate"] then UF:CreateClassPower(self) end
+	if not NDuiDB["Nameplate"]["ShowPlayerPlate"] then UF:CreateClassPower(self) end
 	if not NDuiDB["Misc"]["ExpRep"] then UF:CreateExpRepBar(self) end
 	if NDuiDB["UFs"]["PlayerDebuff"] then UF:CreateDebuffs(self) end
 	if NDuiDB["UFs"]["SwingBar"] then UF:CreateSwing(self) end
-	if NDuiDB["UFs"]["AddPower"] then UF:CreateAddPower(self) end
 end
 
 local function CreateTargetStyle(self)
 	self.mystyle = "target"
-	self:SetSize(245, 24*NDuiDB["UFs"]["HeightScale"]) 
+	self:SetSize(245, 24*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -48,7 +48,7 @@ end
 
 local function CreateFocusStyle(self)
 	self.mystyle = "focus"
-	self:SetSize(200, 22)
+	self:SetSize(200, 22*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -65,7 +65,7 @@ end
 
 local function CreateToTStyle(self)
 	self.mystyle = "tot"
-	self:SetSize(130, 20)
+	self:SetSize(120, 18*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -78,7 +78,7 @@ end
 
 local function CreateFocusTargetStyle(self)
 	self.mystyle = "focustarget"
-	self:SetSize(120, 18)
+	self:SetSize(120, 18*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -89,7 +89,7 @@ end
 
 local function CreatePetStyle(self)
 	self.mystyle = "pet"
-	self:SetSize(120, 18)
+	self:SetSize(120, 18*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -101,14 +101,13 @@ end
 
 local function CreateBossStyle(self)
 	self.mystyle = "boss"
-	self:SetSize(150, 22)
+	self:SetSize(150, 22*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
 	UF:CreateHealthText(self)
 	UF:CreatePowerBar(self)
 	UF:CreatePowerText(self)
-	UF:CreatePortrait(self)
 	UF:CreateCastBar(self)
 	UF:CreateRaidMark(self)
 	UF:CreateAltPower(self)
@@ -118,7 +117,7 @@ end
 
 local function CreateArenaStyle(self)
 	self.mystyle = "arena"
-	self:SetSize(150, 22)
+	self:SetSize(150, 22*NDuiDB["UFs"]["HeightScale"])
 
 	UF:CreateHeader(self)
 	UF:CreateHealthBar(self)
@@ -153,18 +152,6 @@ local function CreateRaidStyle(self)
 	if not NDuiDB["UFs"]["SimpleMode"] then UF:CreateAuras(self) end
 end
 
-oUF:RegisterStyle("Player", CreatePlayerStyle)
-oUF:RegisterStyle("Target", CreateTargetStyle)
-oUF:RegisterStyle("ToT", CreateToTStyle)
-oUF:RegisterStyle("Focus", CreateFocusStyle)
-oUF:RegisterStyle("FocusTarget", CreateFocusTargetStyle)
-oUF:RegisterStyle("Pet", CreatePetStyle)
-oUF:RegisterStyle("Boss", CreateBossStyle)
-oUF:RegisterStyle("Arena", CreateArenaStyle)
-oUF:RegisterStyle("Raid", CreateRaidStyle)
-oUF:RegisterStyle("Nameplates", UF.CreatePlates)
-oUF:RegisterStyle("PlayerPlate", UF.CreatePlayerPlate)
-
 -- Spawns
 function UF:OnLogin()
 	if NDuiDB["Nameplate"]["Enable"] then
@@ -173,20 +160,31 @@ function UF:OnLogin()
 		self:CreateUnitTable()
 		self:CreatePowerUnitTable()
 
+		oUF:RegisterStyle("Nameplates", UF.CreatePlates)
 		oUF:SetActiveStyle("Nameplates")
 		oUF:SpawnNamePlates("oUF_NPs", UF.PostUpdatePlates)
+	end
 
-		if NDuiDB["Nameplate"]["ShowPlayerPlate"] then
-			oUF:SetActiveStyle("PlayerPlate")
-			local plate = oUF:Spawn("player", "oUF_PlayerPlate", true)
-			B.Mover(plate, L["PlayerNP"], "PlayerPlate", C.UFs.PlayerPlate, plate:GetWidth(), 20)
-		end
+	if NDuiDB["Nameplate"]["ShowPlayerPlate"] then
+		oUF:RegisterStyle("PlayerPlate", UF.CreatePlayerPlate)
+		oUF:SetActiveStyle("PlayerPlate")
+		local plate = oUF:Spawn("player", "oUF_PlayerPlate", true)
+		B.Mover(plate, L["PlayerNP"], "PlayerPlate", C.UFs.PlayerPlate, plate:GetWidth(), 20)
 	end
 
 	-- Default Clicksets for RaidFrame
 	self:DefaultClickSets()
 
 	if NDuiDB["UFs"]["Enable"] then
+		-- Register
+		oUF:RegisterStyle("Player", CreatePlayerStyle)
+		oUF:RegisterStyle("Target", CreateTargetStyle)
+		oUF:RegisterStyle("ToT", CreateToTStyle)
+		oUF:RegisterStyle("Focus", CreateFocusStyle)
+		oUF:RegisterStyle("FocusTarget", CreateFocusTargetStyle)
+		oUF:RegisterStyle("Pet", CreatePetStyle)
+
+		-- Loader
 		oUF:SetActiveStyle("Player")
 		local player = oUF:Spawn("player", "oUF_Player")
 		B.Mover(player, L["PlayerUF"], "PlayerUF", C.UFs.PlayerPos, 245, 30)
@@ -212,6 +210,7 @@ function UF:OnLogin()
 		B.Mover(focustarget, L["FotUF"], "FotUF", C.UFs.FoTPos, 120, 30)
 
 		if NDuiDB["UFs"]["Boss"] then
+			oUF:RegisterStyle("Boss", CreateBossStyle)
 			oUF:SetActiveStyle("Boss")
 			local boss = {}
 			for i = 1, MAX_BOSS_FRAMES do
@@ -225,6 +224,7 @@ function UF:OnLogin()
 		end
 
 		if NDuiDB["UFs"]["Arena"] then
+			oUF:RegisterStyle("Arena", CreateArenaStyle)
 			oUF:SetActiveStyle("Arena")
 			local arena = {}
 			for i = 1, 5 do
@@ -293,6 +293,7 @@ function UF:OnLogin()
 		CompactRaidFrameManager.Show = CompactRaidFrameManager.Hide
 
 		-- Group Styles
+		oUF:RegisterStyle("Raid", CreateRaidStyle)
 		oUF:SetActiveStyle("Raid")
 
 		local numGroups = NDuiDB["UFs"]["NumGroups"]

@@ -5,58 +5,12 @@ local cast = ns.cast
 local UF = B:RegisterModule("UnitFrames")
 
 -- Custom colors
-oUF.colors.smooth = {1, 0, 0, .85, .8, .45, .23, .23, .23}
-
-oUF.colors.power = {
-	["MANA"]              = {0.31, 0.45, 0.63},
-	["INSANITY"]          = {0.40, 0.00, 0.80},
-	["MAELSTROM"]         = {0.00, 0.50, 1.00},
-	["LUNAR_POWER"]       = {0.93, 0.51, 0.93},
-	["HOLY_POWER"]        = {0.95, 0.90, 0.60},
-	["RAGE"]              = {0.69, 0.31, 0.31},
-	["FOCUS"]             = {0.71, 0.43, 0.27},
-	["ENERGY"]            = {0.65, 0.63, 0.35},
-	["CHI"]               = {0.71, 1.00, 0.92},
-	["RUNES"]             = {0.77, 0.12, 0.23}, -- RuneBar Color
-	["SOUL_SHARDS"]       = {0.50, 0.32, 0.55},
-	["FURY"]              = {0.78, 0.26, 0.99},
-	["PAIN"]              = {1.00, 0.61, 0.00},
-	["RUNIC_POWER"]       = {0.00, 0.82, 1.00},
-	["AMMOSLOT"]          = {0.80, 0.60, 0.00},
-	["FUEL"]              = {0.00, 0.55, 0.50},
-	["POWER_TYPE_STEAM"]  = {0.55, 0.57, 0.61},
-	["POWER_TYPE_PYRITE"] = {0.60, 0.09, 0.17},
-	["ALTPOWER"]          = {0.00, 1.00, 1.00},
-	["STAGGER"] = {
-       	{0.52, 1.00, 0.52}, 
-		{1.00, 0.98, 0.72},
-		{1.00, 0.42, 0.42},
-	},
-}
-oUF.colors.class = {
-	["HUNTER"]      = { 0.67, 0.83, 0.45 },
-	["WARLOCK"]     = { 0.53, 0.53, 0.93 },
-	["PRIEST"]      = { 0.65, 0.84, 1.00 },
-	["PALADIN"]     = { 0.96, 0.55, 0.73 },
-	["MAGE"]        = { 0.25, 0.78, 0.92 },
-	["ROGUE"]       = { 1.00, 0.96, 0.41 },
-	["DRUID"]       = { 1.00, 0.49, 0.04 },
-	["SHAMAN"]      = { 0.00, 0.44, 0.87 },
-	["WARRIOR"]     = { 0.78, 0.61, 0.43 },
-	["DEATHKNIGHT"] = { 0.77, 0.12, 0.23 },
-	["MONK"]        = { 0.00, 1.00, 0.59 },
-	["DEMONHUNTER"] = { 0.64, 0.19, 0.79 },
-}
-oUF.colors.reaction = {
-	[1] = { 0.80, 0.30, 0.22 }, -- Hated
-	[2] = { 0.80, 0.30, 0.22 }, -- Hostile
-	[3] = { 0.75, 0.27, 0.00 }, -- Unfriendly
-	[4] = { 0.90, 0.70, 0.00 }, -- Neutral
-	[5] = { 0.00, 0.60, 0.10 }, -- Friendly
-	[6] = { 0.00, 0.60, 0.10 }, -- Honored
-	[7] = { 0.00, 0.60, 0.10 }, -- Revered
-	[8] = { 0.00, 0.60, 0.10 }, -- Exalted
-}
+oUF.colors.smooth = {1, 0, 0, .85, .8, .45, .1, .1, .1}
+oUF.colors.power.MANA = {0, .4, 1}
+oUF.colors.power.SOUL_SHARDS = {.58, .51, .79}
+oUF.colors.power.HOLY_POWER = {.88, .88, .06}
+oUF.colors.power.CHI = {0, 1, .59}
+oUF.colors.power.ARCANE_CHARGES = {.41, .8, .94}
 
 -- Various values
 local function retVal(self, val1, val2, val3, val4)
@@ -101,7 +55,7 @@ function UF:CreateHealthBar(self)
 	health:SetStatusBarTexture(DB.normTex)
 	health:SetStatusBarColor(.1, .1, .1)
 	health:SetFrameLevel(self:GetFrameLevel() - 2)
-	B.CreateSD(health, 1, 1)
+	B.CreateSD(health, 3, 3)
 	B.SmoothBar(health)
 
 	local bg = health:CreateTexture(nil, "BACKGROUND")
@@ -140,29 +94,18 @@ function UF:CreateHealthText(self)
 		name:SetWidth(self:GetWidth()*.85)
 		name:ClearAllPoints()
 		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 5)
-	elseif self.mystyle == "tot" then
-		name:SetWidth(self:GetWidth()*.85)
 	else
 		name:SetWidth(self:GetWidth()*.55)
 	end
 
 	if self.mystyle == "player" then
-		name:ClearAllPoints()
-		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 12, -5)
 		self:Tag(name, " [color][name]")
 	elseif self.mystyle == "target" then
-		name:ClearAllPoints()
-		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 12, -5)
 		self:Tag(name, "[fulllevel] [color][name][afkdnd]")
 	elseif self.mystyle == "focus" then
 		self:Tag(name, "[color][name][afkdnd]")
 	elseif self.mystyle == "nameplate" then
-		local level = self:CreateFontString(nil, "OVERLAY")
-		level:SetJustifyH("LEFT")
-		level:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 5)
-		level:SetFont(DB.TipFont[1], 11, DB.TipFont[3])
-		self:Tag(level, "[fulllevel]")
-		self:Tag(name, "[name]")
+		self:Tag(name, "[nplevel][name]")
 	else
 		self:Tag(name, "[color][name]")
 	end
@@ -176,18 +119,8 @@ function UF:CreateHealthText(self)
 			self:Tag(hpval, "[DDG]")
 		end
 	elseif self.mystyle == "nameplate" then
-		hpval:ClearAllPoints()
-		--hpval:SetFont(DB.TipFont[1], 12, DB.TipFont[3])
-		hpval:SetPoint("CENTER", self, "CENTER", 0, 0)
+		hpval:SetPoint("RIGHT", self, "TOPRIGHT", 0, 3)
 		self:Tag(hpval, "[nphp]")
-	elseif self.mystyle == "player" then
-		hpval:ClearAllPoints()
-		hpval:SetPoint("LEFT", self, "LEFT", 10, 0)
-		self:Tag(hpval, "[hp]")
-	elseif self.mystyle == "target" then
-		hpval:ClearAllPoints()
-		hpval:SetPoint("RIGHT", self, "RIGHT", -10, 0)
-		self:Tag(hpval, "[hp]")
 	else
 		self:Tag(hpval, "[hp]")
 	end
@@ -199,14 +132,14 @@ function UF:CreatePowerBar(self)
 	local power = CreateFrame("StatusBar", nil, self)
 	power:SetStatusBarTexture(DB.normTex)
 	if self.mystyle == "PlayerPlate" then
-		power:SetHeight(self:GetHeight())
+		power:SetHeight(NDuiDB["Nameplate"]["PPPHeight"])
 	else
 		power:SetHeight(retVal(self, 4, 3, 2, 4))
 	end
 	power:SetWidth(self:GetWidth())
-	power:SetPoint("TOP", self, "BOTTOM", 0, -1)
+	power:SetPoint("TOP", self, "BOTTOM", 0, -3)
 	power:SetFrameLevel(self:GetFrameLevel() - 2)
-	B.CreateSD(power, 1, 1)
+	B.CreateSD(power, 3, 3)
 	B.SmoothBar(power)
 
 	local bg = power:CreateTexture(nil, "BACKGROUND")
@@ -217,8 +150,7 @@ function UF:CreatePowerBar(self)
 	if (self.mystyle == "raid" and NDuiDB["UFs"]["RaidClassColor"]) or (self.mystyle ~= "raid" and NDuiDB["UFs"]["ClassColor"]) or self.mystyle == "PlayerPlate" then
 		power.colorPower = true
 	else
-		power.colorClass = false
-		power.colorPower = true
+		power.colorClass = true
 		power.colorTapping = true
 		power.colorDisconnected = true
 		power.colorReaction = true
@@ -234,13 +166,6 @@ function UF:CreatePowerText(self)
 	textFrame:SetAllPoints(self.Power)
 
 	local ppval = B.CreateFS(textFrame, retVal(self, 13, 12, 12), "", false, "RIGHT", -3, 2)
-	if 	self.mystyle == "player" then
-		ppval:ClearAllPoints()
-		ppval:SetPoint("RIGHT", self, "RIGHT", -5, 0)
-	elseif self.mystyle == "target" then
-		ppval:ClearAllPoints()
-		ppval:SetPoint("LEFT", self, "LEFT", 5, 0)
-	end
 	self:Tag(ppval, "[color][power]")
 end
 
@@ -248,24 +173,14 @@ function UF:CreatePortrait(self)
 	if not NDuiDB["UFs"]["Portrait"] then return end
 
 	local portrait = CreateFrame("PlayerModel", nil, self.Health)
-	if 	self.mystyle == "player" then
-		portrait:SetSize(52, 52)
-		portrait:SetPoint("LEFT", self.Health, -53, 0)
-		self.Portrait = portrait
-	elseif self.mystyle == "target" then
-		portrait:SetSize(52, 52)
-		portrait:SetPoint("RIGHT", self.Health, 53, 0)
-		self.Portrait = portrait
-	else
-		portrait:SetAllPoints()
-		portrait:SetAlpha(.2)
-		self.Portrait = portrait
+	portrait:SetAllPoints()
+	portrait:SetAlpha(.2)
+	self.Portrait = portrait
 
-		self.Health.bg:ClearAllPoints()
-		self.Health.bg:SetPoint("BOTTOMLEFT", self.Health:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-		self.Health.bg:SetPoint("TOPRIGHT", self.Health)
-		self.Health.bg:SetParent(self)
-	end
+	self.Health.bg:ClearAllPoints()
+	self.Health.bg:SetPoint("BOTTOMLEFT", self.Health:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
+	self.Health.bg:SetPoint("TOPRIGHT", self.Health)
+	self.Health.bg:SetParent(self)
 end
 
 local roleTexCoord = {
@@ -353,7 +268,7 @@ function UF:CreateCastBar(self)
 	cb:SetStatusBarTexture(DB.normTex)
 	cb:SetFrameLevel(1)
 	B.CreateBD(cb, .5, .1)
-	B.CreateSD(cb, 1, 1)
+	B.CreateSD(cb, 3, 3)
 	B.CreateTex(cb)
 
 	if self.mystyle == "player" then
@@ -373,8 +288,8 @@ function UF:CreateCastBar(self)
 		cb:SetSize(self:GetWidth(), 5)
 	end
 
-	cb.CastingColor = oUF.colors.class[DB.MyClass]
-	cb.ChannelingColor = oUF.colors.class[DB.MyClass]
+	cb.CastingColor = {.3, .7, 1}
+	cb.ChannelingColor = {.3, .7, 1}
 	cb.notInterruptibleColor = {1, .5, .5}
 	cb.CompleteColor = {.1, .8, 0}
 	cb.FailColor = {1, .1, 0}
@@ -442,23 +357,25 @@ function UF:CreateCastBar(self)
 	self.Castbar = cb
 end
 
-function UF:CreateMirrorBar()
-	for _, bar in pairs({"MirrorTimer1", "MirrorTimer2", "MirrorTimer3"}) do   
-		_G[bar]:GetRegions():Hide()
-		_G[bar.."Border"]:Hide()
-		_G[bar]:SetParent(UIParent)
-		_G[bar]:SetScale(1)
-		_G[bar]:SetHeight(15)
-		_G[bar]:SetWidth(280)
-		_G[bar.."Background"] = _G[bar]:CreateTexture(bar.."Background", "BACKGROUND", _G[bar])
-		_G[bar.."Background"]:SetTexture(DB.normTex)
-		_G[bar.."Background"]:SetAllPoints(bar)
-		_G[bar.."Background"]:SetVertexColor(0, 0, 0, .5)
-		_G[bar.."Text"]:SetFont(unpack(DB.Font))
-		_G[bar.."Text"]:ClearAllPoints()
-		_G[bar.."Text"]:SetPoint("CENTER")
-		_G[bar.."StatusBar"]:SetAllPoints(_G[bar])
-		B.CreateSD(_G[bar], 3, 3)
+function UF:ReskinMirrorBars()
+	local previous
+	for i = 1, 3 do
+		local bar = _G["MirrorTimer"..i]
+		B.StripTextures(bar, true)
+		bar:SetSize(280, 15)
+
+		local bg = B.CreateBG(bar, 3)
+		B.CreateBD(bg)
+		B.CreateTex(bg)
+
+		local statusbar = _G["MirrorTimer"..i.."StatusBar"]
+		statusbar:SetAllPoints()
+		statusbar:SetStatusBarTexture(DB.normTex)
+
+		if previous then
+			bar:SetPoint("TOP", previous, "BOTTOM", 0, -5)
+		end
+		previous = bar
 	end
 end
 
@@ -526,7 +443,7 @@ local function postUpdateGapIcon(_, _, icon)
 	end
 end
 
-local function customFilter(element, unit, button, name, _, _, _, _, _, caster, _, _, spellID, _, _, _, nameplateShowAll)
+local function customFilter(element, unit, button, name, _, _, _, _, _, caster, isStealable, _, spellID, _, _, _, nameplateShowAll)
 	local style = element.__owner.mystyle
 	if name and spellID == 209859 then
 		element.bolster = element.bolster + 1
@@ -543,10 +460,12 @@ local function customFilter(element, unit, button, name, _, _, _, _, _, caster, 
 	elseif style == "nameplate" then
 		if UnitIsUnit("player", unit) then
 			return false
-		elseif C.WhiteList and C.WhiteList[spellID] then
-			return true
 		elseif C.BlackList and C.BlackList[spellID] then
 			return false
+		elseif element.showStealableBuffs and isStealable and not UnitIsPlayer(unit) then
+			return true
+		elseif C.WhiteList and C.WhiteList[spellID] then
+			return true
 		else
 			return (NDuiDB["Nameplate"]["AllAuras"] and nameplateShowAll) or (caster == "player" or caster == "pet" or caster == "vehicle")
 		end
@@ -695,9 +614,21 @@ local function postUpdateClassPower(element, cur, max, diff, powerType, event)
 	end
 end
 
+local function postUpdateRunes(element, runemap)
+	for index, runeID in next, runemap do
+		local rune = element[index]
+		local runeReady = select(3, GetRuneCooldown(runeID))
+		if rune:IsShown() and not runeReady then
+			rune:SetAlpha(.6)
+		else
+			rune:SetAlpha(1)
+		end
+	end
+end
+
 function UF:CreateClassPower(self)
 	if self.mystyle == "PlayerPlate" then
-		width, height = self:GetWidth(), self:GetHeight()*2 + 3
+		width, height = self:GetWidth(), (self:GetHeight()+self.Power:GetHeight())
 		C.UFs.BarPoint = {"BOTTOMLEFT", self, "TOPLEFT", 0, 3}
 	end
 
@@ -731,7 +662,8 @@ function UF:CreateClassPower(self)
 
 	if DB.MyClass == "DEATHKNIGHT" then
 		bars.colorSpec = true
-		if NDuiDB["UFs"]["SortRunes"] then bars.sortOrder = "asc" end
+		bars.sortOrder = "asc"
+		bars.PostUpdate = postUpdateRunes
 		self.Runes = bars
 	else
 		bars.PostUpdate = postUpdateClassPower

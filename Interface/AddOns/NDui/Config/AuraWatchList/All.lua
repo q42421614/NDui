@@ -48,6 +48,13 @@ local list = {
 		{AuraID = 26297, UnitID = "player"},	-- 狂暴 巨魔
 		{AuraID = 20572, UnitID = "player"},	-- 血性狂怒 兽人
 		{AuraID = 33697, UnitID = "player"},	-- 血性狂怒 兽人
+		-- 饰品附魔
+		{AuraID = 275765, UnitID = "player"},	-- 艾泽里特强化
+		{AuraID = 271194, UnitID = "player"},	-- 火炮
+		{AuraID = 273992, UnitID = "player"},	-- 灵魂之速
+		{AuraID = 273955, UnitID = "player"},	-- 望远镜视野
+		{AuraID = 261612, UnitID = "player"},	-- 迅击风暴
+		{AuraID = 264957, UnitID = "player"},	-- 急速瞄准镜
 		-- 艾泽里特特质
 		{AuraID = 273685, UnitID = "player"},	-- 缜密计谋
 		{AuraID = 273714, UnitID = "player"},	-- 争分夺秒
@@ -59,7 +66,11 @@ local list = {
 		{AuraID = 268956, UnitID = "player", Text = RAID_BUFF_8},	-- 全能
 		{AuraID = 280780, UnitID = "player"},	-- 战斗荣耀
 		{AuraID = 280787, UnitID = "player"},	-- 反击之怒
-		{AuraID = 279928, UnitID = "player"},	-- 大地链接
+		{AuraID = 279928, UnitID = "player", Combat = true},	-- 大地链接
+		{AuraID = 280385, UnitID = "player"},	-- 压力渐增
+		{AuraID = 273842, UnitID = "player"},	-- 深渊秘密
+		{AuraID = 273843, UnitID = "player"},	-- 深渊秘密
+		{AuraID = 280412, UnitID = "player"},	-- 激励兽群
 		-- LEG药水附魔
 		{AuraID = 188027, UnitID = "player"},	-- 致命优雅，远程
 		{AuraID = 188028, UnitID = "player"},	-- 上古战神，近战
@@ -511,14 +522,10 @@ local list = {
 		{AuraID = 250669, UnitID = "player", Text = L["Get Out"]},	-- 灵魂爆发
 	},
 	["Warning"] = {			-- 目标重要光环组
-	-- 勇气试练
-		{AuraID = 229256, UnitID = "target"},	-- 奥丁，弧光风暴
-		{AuraID = 228174, UnitID = "target"},	-- 高姆，吐沫狂怒
-		{AuraID = 228803, UnitID = "target"},	-- 海拉，酝酿风暴
-		{AuraID = 203816, UnitID = "target"},	-- 小怪，精力
-		{AuraID = 228611, UnitID = "target"},	-- 小怪，幽灵怒火
-	-- 大秘
+	-- 5人本
+		{AuraID = 257458, UnitID = "target"},	-- 自由镇尾王易伤
 		{AuraID = 226510, UnitID = "target"},	-- 血池回血
+	-- 7.0副本
 		{AuraID = 244621, UnitID = "target"},	-- 虚空裂隙，执政团尾王
 		{AuraID = 192132, UnitID = "target"},	-- 英灵殿赫娅
 		{AuraID = 192133, UnitID = "target"},	-- 英灵殿赫娅
@@ -532,6 +539,12 @@ local list = {
 		{AuraID = 212707, UnitID = "target"},	-- 召云聚气
 		{AuraID = 210346, UnitID = "target"},	-- 恐惧荆棘光环
 		{AuraID = 210340, UnitID = "target"},	-- 恐惧荆棘光环
+	-- 勇气试练
+		{AuraID = 229256, UnitID = "target"},	-- 奥丁，弧光风暴
+		{AuraID = 228174, UnitID = "target"},	-- 高姆，吐沫狂怒
+		{AuraID = 228803, UnitID = "target"},	-- 海拉，酝酿风暴
+		{AuraID = 203816, UnitID = "target"},	-- 小怪，精力
+		{AuraID = 228611, UnitID = "target"},	-- 小怪，幽灵怒火
 	-- 暗夜要塞
 		{AuraID = 204697, UnitID = "target"},	-- 毒蝎虫群
 		{AuraID = 204448, UnitID = "target"},	-- 几丁质外壳

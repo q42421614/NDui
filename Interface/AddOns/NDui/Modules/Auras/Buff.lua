@@ -28,12 +28,7 @@ function module:OnLogin()
 	BuffFrame.ignoreFramePositionManager = true
 
 	-- Elements
-	if DB.MyClass == "DEATHKNIGHT" then
-		self:BloodyHell()
-	elseif DB.MyClass == "HUNTER" then
-		self:HunterTool()
-	elseif DB.MyClass == "MONK" then
-		self:Stagger()
+	if DB.MyClass == "MONK" then
 		self:MonkStatue()
 	elseif DB.MyClass == "SHAMAN" then
 		self:Totems()
