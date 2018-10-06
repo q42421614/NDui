@@ -122,9 +122,9 @@ local function SetupBackdrop(button)
 	B.CreateSD(bg)
 	B.CreateTex(bg)
 	if NDuiDB["Actionbar"]["Classcolor"] then
-		bg:SetBackdropColor(DB.cc.r, DB.cc.g, DB.cc.b, .25)
+		bg:SetBackdropColor(DB.cc.r, DB.cc.g, DB.cc.b, .75)
 	else
-		bg:SetBackdropColor(.2, .2, .2, .25)
+		bg:SetBackdropColor(.2, .2, .2, .75)
 	end
 end
 
