@@ -43,16 +43,19 @@ local function GetSectionInfo(id)
 end
 
 local CustomUnits = {
-	["Fel Explosive"] = true,
-	["邪能炸药"] = true,
-	["魔化炸彈"] = true,
 	[GetSectionInfo(14544)] = true,	-- 海拉加尔观雾者
 	[GetSectionInfo(14595)] = true,	-- 深渊追猎者
 	[GetSectionInfo(16588)] = true,	-- 尖啸反舌鸟
 	[GetSectionInfo(16350)] = true,	-- 瓦里玛萨斯之影
-	--["Spawn of G'huun"] = true,
-	--["戈霍恩之嗣"] = true,
-	--["古翰幼體"] = true,
+	[GetSectionInfo(18540)] = true,	-- 纳兹曼尼鲜血妖术师
+	[GetSectionInfo(18104)] = true,	-- 散疫触须
+	[GetSectionInfo(18232)] = true,	-- 艾什凡炮手
+	[GetSectionInfo(18499)] = true,	-- 凝结之血
+	[GetSectionInfo(18078)] = true,	-- 蛛魔编织者
+	["Spawn of G'huun"] = true,
+	["戈霍恩之嗣"] = true,
+	["古翰幼體"] = true,
+	["Explosives"] = true,
 	["爆炸物"] = true,
 	["炸彈"] = true,
 }
@@ -68,10 +71,9 @@ end
 C.ShowPowerList = {
 	[GetSectionInfo(13015)] = true,	-- 清扫器
 	[GetSectionInfo(15903)] = true,	-- 泰沙拉克的余烬
+	[GetSectionInfo(18540)] = true,	-- 纳兹曼尼鲜血妖术师
 }
 function UF:CreatePowerUnitTable()
-	if not NDuiDB["Nameplate"]["ShowUnitPower"] then return end
-
 	local list = {string.split(" ", NDuiDB["Nameplate"]["ShowPowerList"])}
 	for _, value in pairs(list) do
 		C.ShowPowerList[value] = true
@@ -83,13 +85,18 @@ local function UpdateColor(element, unit)
 	local name = GetUnitName(unit) or UNKNOWN
 	local status = UnitThreatSituation("player", unit) or false		-- just in case
 	local reaction = UnitReaction(unit, "player")
+	local customColor = NDuiDB["Nameplate"]["CustomColor"]
+	local secureColor = NDuiDB["Nameplate"]["SecureColor"]
+	local transColor = NDuiDB["Nameplate"]["TransColor"]
+	local insecureColor = NDuiDB["Nameplate"]["InsecureColor"]
+	local revertThreat = NDuiDB["Nameplate"]["DPSRevertThreat"]
 	local r, g, b
 
 	if not UnitIsConnected(unit) then
 		r, g, b = .7, .7, .7
 	else
 		if CustomUnits and CustomUnits[name] then
-			r, g, b = 0, .8, .3
+			r, g, b = customColor.r, customColor.g, customColor.b
 		elseif UnitIsPlayer(unit) and (reaction and reaction >= 5) then
 			if NDuiDB["Nameplate"]["FriendlyCC"] then
 				r, g, b = B.UnitColor(unit)
@@ -104,9 +111,19 @@ local function UpdateColor(element, unit)
 			r, g, b = UnitSelectionColor(unit, true)
 			if status and (NDuiDB["Nameplate"]["TankMode"] or DB.Role == "Tank") then
 				if status == 3 then
-					r, g, b = 1, 0, 1
+					if DB.Role ~= "Tank" and revertThreat then
+						r, g, b = insecureColor.r, insecureColor.g, insecureColor.b
+					else
+						r, g, b = secureColor.r, secureColor.g, secureColor.b
+					end
 				elseif status == 2 or status == 1 then
-					r, g, b = 1, .8, 0
+					r, g, b = transColor.r, transColor.g, transColor.b
+				elseif status == 0 then
+					if DB.Role ~= "Tank" and revertThreat then
+						r, g, b = secureColor.r, secureColor.g, secureColor.b
+					else
+						r, g, b = insecureColor.r, insecureColor.g, insecureColor.b
+					end
 				end
 			end
 		end
@@ -135,13 +152,15 @@ local function UpdateThreatColor(self, _, unit)
 end
 
 local function UpdateTargetMark(self)
-	local mark = self.targetMark
-	if not mark then return end
+	local arrow = self.arrowMark
+	local mark = self.tarMark
 
 	if UnitIsUnit(self.unit, "target") and not UnitIsUnit(self.unit, "player") then
-		mark:SetAlpha(1)
+		if arrow then arrow:SetAlpha(1) end
+		if mark then mark:SetAlpha(1) end
 	else
-		mark:SetAlpha(0)
+		if arrow then arrow:SetAlpha(0) end
+		if mark then mark:SetAlpha(0) end
 	end
 end
 
@@ -201,6 +220,55 @@ local function UpdateUnitClassify(self, unit)
 	end
 end
 
+local function isMouseoverUnit(self)
+	if not self or not self.unit then return end
+
+	if self:IsVisible() and UnitExists("mouseover") and not UnitIsUnit("target", self.unit) then
+		return UnitIsUnit("mouseover", self.unit)
+	end
+	return false
+end
+
+local function updateMouseoverShown(self)
+	if not self or not self.unit then return end
+
+	if self:IsShown() and UnitIsUnit("mouseover", self.unit) and not UnitIsUnit("target", self.unit) then
+		self.glow:Show()
+		self.HighlightIndicator:Show()
+	else
+		self.HighlightIndicator:Hide()
+	end
+end
+
+local function AddMouseoverIndicator(self)
+	local glow = CreateFrame("Frame", nil, self)
+	glow:SetPoint("TOPLEFT", -6, 6)
+	glow:SetPoint("BOTTOMRIGHT", 6, -6)
+	glow:SetBackdrop({edgeFile = DB.glowTex, edgeSize = 4})
+	glow:SetBackdropBorderColor(1, 1, 1)
+	glow:Hide()
+
+	self:RegisterEvent("UPDATE_MOUSEOVER_UNIT", updateMouseoverShown)
+	self:RegisterEvent("PLAYER_TARGET_CHANGED", updateMouseoverShown)
+
+	local f = CreateFrame("Frame", nil, self)
+	f:SetScript("OnUpdate", function(_, elapsed)
+		f.elapsed = (f.elapsed or 0) + elapsed
+		if f.elapsed > .1 then
+			if not isMouseoverUnit(self) then
+				f:Hide()
+			end
+			f.elapsed = 0
+		end
+	end)
+	f:HookScript("OnHide", function()
+		glow:Hide()
+	end)
+
+	self.glow = glow
+	self.HighlightIndicator = f
+end
+
 -- Create Nameplates
 function UF:CreatePlates(unit)
 	self.mystyle = "nameplate"
@@ -233,17 +301,17 @@ function UF:CreatePlates(unit)
 			arrow:SetTexture(DB.arrowTex)
 			arrow:SetPoint("BOTTOM", self, "TOP", 0, 14)
 			arrow:SetAlpha(0)
-			self.targetMark = arrow
-		else
-			local glow = CreateFrame("Frame", nil, self)
-			glow:SetPoint("TOPLEFT", -5, 5)
-			glow:SetPoint("BOTTOMRIGHT", 5, -5)
-			glow:SetBackdrop({edgeFile = DB.glowTex, edgeSize = 4})
-			glow:SetBackdropBorderColor(1, 1, 1)
-			glow:SetFrameLevel(0)
-			glow:SetAlpha(0)
-			self.targetMark = glow
+			self.arrowMark = arrow
 		end
+		local mark = self.Health:CreateTexture(nil, "BACKGROUND", nil, -1)
+		mark:SetHeight(12)
+		mark:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", -20, -2)
+		mark:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", 20, -2)
+		mark:SetTexture("Interface\\GLUES\\Models\\UI_Draenei\\GenericGlow64")
+		mark:SetVertexColor(0, .6, 1)
+		mark:SetBlendMode("ADD")
+		mark:SetAlpha(0)
+		self.tarMark = mark
 		self:RegisterEvent("PLAYER_TARGET_CHANGED", UpdateTargetMark)
 
 		local cicon = self:CreateTexture(nil, "OVERLAY")
@@ -266,10 +334,15 @@ function UF:CreatePlates(unit)
 		local threatIndicator = CreateFrame("Frame", nil, self)
 		self.ThreatIndicator = threatIndicator
 		self.ThreatIndicator.Override = UpdateThreatColor
+
+		if NDuiDB["Nameplate"]["HighlightIndicator"] then
+			AddMouseoverIndicator(self)
+		end
 	end
 end
 
 function UF:PostUpdatePlates(event, unit)
+	if not self then return end
 	UpdateTargetMark(self)
 	UpdateQuestUnit(self, unit)
 	UpdateUnitClassify(self, unit)

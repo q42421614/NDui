@@ -43,7 +43,7 @@ local function CreatePanel()
 			NDuiDB["AuraWatchList"] = {}
 			NDuiDB["InternalCD"] = {}
 			NDuiADB["RaidDebuffs"] = {}
-			NDuiDB["RaidClickSets"] = {}
+			NDuiDB["RaidClickSets"] = nil
 			ReloadUI()
 		end,
 		whileDead = 1,
@@ -54,8 +54,7 @@ local function CreatePanel()
 
 	-- Elements
 	local function CreateLabel(parent, text, tip)
-		local label = B.CreateFS(parent, 14, text, false, "CENTER", 0, 25)
-		label:SetTextColor(1, .8, 0)
+		local label = B.CreateFS(parent, 14, text, "system", "CENTER", 0, 25)
 		local frame = CreateFrame("Frame", nil, parent)
 		frame:SetAllPoints(label)
 		frame:SetScript("OnEnter", function()
@@ -383,6 +382,7 @@ local function CreatePanel()
 		L["RaidFrame Debuffs"],		-- 11 RaidFrame Debuffs
 		L["RaidFrame ClickSets"],	-- 12 RaidFrame ClickSets
 	}
+
 	local instList = {
 		[1] = EJ_GetInstanceInfo(768),
 		[2] = EJ_GetInstanceInfo(861),
@@ -391,6 +391,7 @@ local function CreatePanel()
 		[5] = EJ_GetInstanceInfo(946),
 		[6] = EJ_GetInstanceInfo(1031),
 	}
+
 	local preSet = {
 		[1] = {1, true},
 		[2] = {1, true},
@@ -402,6 +403,17 @@ local function CreatePanel()
 		[8] = {1, false},
 		[9] = {1, false},
 	}
+
+	local keyList = {
+		KEY_BUTTON1,
+		KEY_BUTTON2,
+		KEY_BUTTON3,
+		KEY_BUTTON4,
+		KEY_BUTTON5,
+		L["WheelUp"],
+		L["WheelDown"],
+	}
+
 	local tabs = {}
 	local function tabOnClick(self)
 		for i = 1, #tabs do
@@ -433,10 +445,10 @@ local function CreatePanel()
 		tabs[i]:SetPoint("TOPLEFT", 20, -40 - i*30)
 		tabs[i]:SetSize(130, 28)
 		B.CreateBD(tabs[i], .3)
-		local label = B.CreateFS(tabs[i], 15, group, true, "LEFT", 10, 0)
-		if i < 11 then
-			label:SetTextColor(1, .8, 0)
-		else
+		local label = B.CreateFS(tabs[i], 15, group, "system", "LEFT", 10, 0)
+		if i == 10 then
+			label:SetTextColor(0, .8, .3)
+		elseif i > 10 then
 			label:SetTextColor(.6, .8, 1)
 		end
 		tabs[i].Page = CreatePage(group)
@@ -506,7 +518,7 @@ local function CreatePanel()
 				AddRaidClickSets(tabs[i].List.Child, i, v)
 			end
 			Option[20] = CreateEditbox(tabs[i].Page, L["Action*"], 20, -30, L["Action Intro"], 200, 30)
-			Option[21] = CreateDropdown(tabs[i].Page, L["Key*"], 250, -30, {KEY_BUTTON1, KEY_BUTTON2, KEY_BUTTON3, KEY_BUTTON4, KEY_BUTTON5}, L["Key Intro"], 110, 30)
+			Option[21] = CreateDropdown(tabs[i].Page, L["Key*"], 250, -30, keyList, L["Key Intro"], 110, 30)
 			Option[22] = CreateDropdown(tabs[i].Page, L["Modified Key"], 390, -30, {NONE, "ALT", "CTRL", "SHIFT"}, L["ModKey Intro"], 110, 30)
 
 			local reset = B.CreateButton(tabs[i].Page, 70, 25, RESET)

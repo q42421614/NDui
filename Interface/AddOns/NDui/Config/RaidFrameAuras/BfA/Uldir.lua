@@ -27,6 +27,7 @@ module:RegisterDebuff(TIER, INSTANCE, BOSS, 265237) -- 粉碎
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 265264) -- 虚空鞭笞
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 265360) -- 翻滚欺诈
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 265646, 5) -- 腐化者的意志
+module:RegisterDebuff(TIER, INSTANCE, BOSS, 265662, 5) -- 腐化者的契约
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 270620) -- 灵能冲击波
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 270589) -- 虚空之嚎
 
@@ -43,13 +44,17 @@ module:RegisterDebuff(TIER, INSTANCE, BOSS, 274358) -- 破裂之血
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 273434) -- 绝望深渊
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 274271) -- 死亡之愿
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 278890) -- 剧烈失血
+module:RegisterDebuff(TIER, INSTANCE, BOSS, 273365) -- 黑暗启示
+module:RegisterDebuff(TIER, INSTANCE, BOSS, 272018) -- 黑暗吸收
 
 BOSS = 2194 -- 拆解者米斯拉克斯
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 274693) -- 精华撕裂
-module:RegisterDebuff(TIER, INSTANCE, BOSS, 272146) -- 毁灭
+module:RegisterDebuff(TIER, INSTANCE, BOSS, 272146, 2) -- 毁灭
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 272407) -- 湮灭之球
+module:RegisterDebuff(TIER, INSTANCE, BOSS, 272536) -- 毁灭迫近
 
 BOSS = 2147 -- 戈霍恩
-module:RegisterDebuff(TIER, INSTANCE, BOSS, 272506) -- 爆炸腐蚀
+module:RegisterDebuff(TIER, INSTANCE, BOSS, 274262) -- 爆炸腐蚀
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 263235) -- 鲜血盛宴
 module:RegisterDebuff(TIER, INSTANCE, BOSS, 267700) -- 戈霍恩的凝视
+module:RegisterDebuff(TIER, INSTANCE, BOSS, 263227, 2) -- 腐败之血

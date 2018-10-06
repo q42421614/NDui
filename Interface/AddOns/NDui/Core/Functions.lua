@@ -75,7 +75,11 @@ function B:CreateFS(size, text, classcolor, anchor, x, y)
 	fs:SetFont(DB.Font[1], size, DB.Font[3])
 	fs:SetText(text)
 	fs:SetWordWrap(false)
-	if classcolor then fs:SetTextColor(cr, cg, cb) end
+	if classcolor and type(classcolor) == "boolean" then
+		fs:SetTextColor(cr, cg, cb)
+	elseif classcolor == "system" then
+		fs:SetTextColor(1, .8, 0)
+	end
 	if anchor and x and y then
 		fs:SetPoint(anchor, x, y)
 	else
@@ -392,6 +396,35 @@ function B.CopyTable(source, target)
 			target[key] = value
 		end
 	end
+end
+
+-- Itemlevel
+local iLvlDB = {}
+local itemLevelString = _G["ITEM_LEVEL"]:gsub("%%d", "")
+local tip = CreateFrame("GameTooltip", "NDui_iLvlTooltip", nil, "GameTooltipTemplate")
+
+function B.GetItemLevel(link, arg1, arg2)
+	if iLvlDB[link] then return iLvlDB[link] end
+
+	tip:SetOwner(UIParent, "ANCHOR_NONE")
+	if arg1 and type(arg1) == "string" then
+		tip:SetInventoryItem(arg1, arg2)
+	elseif arg1 and type(arg1) == "number" then
+		tip:SetBagItem(arg1, arg2)
+	else
+		tip:SetHyperlink(link)
+	end
+
+	for i = 2, 5 do
+		local text = _G[tip:GetName().."TextLeft"..i]:GetText() or ""
+		local found = text:find(itemLevelString)
+		if found then
+			local level = text:match("(%d+)%)?$")
+			iLvlDB[link] = tonumber(level)
+			break
+		end
+	end
+	return iLvlDB[link]
 end
 
 -- GUI APIs

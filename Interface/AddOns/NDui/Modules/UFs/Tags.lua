@@ -85,10 +85,12 @@ oUF.Tags.Methods["DDG"] = function(unit)
 	elseif UnitIsGhost(unit) then
 		return "|cffCFCFCF"..L["Ghost"].."|r"
 	elseif not UnitIsConnected(unit) then
-		return "|cffCFCFCF"..PLAYER_OFFLINE.."|r"
+		return GetNumArenaOpponentSpecs() > 0 and "" or "|cffCFCFCF"..PLAYER_OFFLINE.."|r"
 	end
 end
 oUF.Tags.Events["DDG"] = "UNIT_HEALTH UNIT_CONNECTION"
+
+oUF.Tags.Events["arenaspec"] = "ARENA_PREP_OPPONENT_SPECIALIZATIONS UNIT_NAME_UPDATE"
 
 -- Level tags
 oUF.Tags.Methods["fulllevel"] = function(unit)
@@ -137,7 +139,12 @@ oUF.Tags.Methods["nphp"] = function(unit)
 	local per = oUF.Tags.Methods["perhp"](unit) or 0
 	if per == 100 then return end
 
-	return ColorPercent(per)
+	if NDuiDB["Nameplate"]["FullHealth"] then
+		local cur = UnitHealth(unit)
+		return B.Numb(cur).." | "..ColorPercent(per)
+	else
+		return ColorPercent(per)
+	end
 end
 oUF.Tags.Events["nphp"] = "UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION"
 

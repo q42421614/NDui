@@ -12,6 +12,8 @@ DB.cc = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[DB.MyClass]
 DB.MyColor = format("|cff%02x%02x%02x", DB.cc.r*255, DB.cc.g*255, DB.cc.b*255)
 DB.InfoColor = "|cff70c0f5"
 DB.GreyColor = "|cff808080"
+BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_POOR] = {r = .61, g = .61, b = .61}
+BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_COMMON] = {r = 0, g = 0, b = 0}
 
 -- Fonts
 DB.Font = {STANDARD_TEXT_FONT, 12, "OUTLINE"}
@@ -89,15 +91,17 @@ DB.BuffList = {
 	},
 	[3] = {     -- 10%智力
 		1459,
+		264760,
 	},
 	[4] = {     -- 10%耐力
 		21562,
+		264764,
 	},
 	[5] = {     -- 10%攻强
 		6673,
+		264761,
 	},
 	[6] = {     -- 符文
-		224001,
 		270058,
 	},
 }

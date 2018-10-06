@@ -111,19 +111,42 @@ function module:InterruptAlert()
 		["SPELL_STOLEN"] = L["Steal"],
 		["SPELL_DISPEL"] = L["Dispel"],
 	}
+	if NDuiDB["Misc"]["BrokenSpell"] then infoType["SPELL_AURA_BROKEN_SPELL"] = L["BrokenSpell"] end
+
+	local blackList = {
+		[99] = true,		-- 夺魂咆哮
+		[122] = true,		-- 冰霜新星
+		[1784] = true,		-- 潜行
+		[5246] = true,		-- 破胆怒吼
+		[8122] = true,		-- 心灵尖啸
+		[33395] = true,		-- 冰冻术
+		[228600] = true,	-- 冰川尖刺
+		[197214] = true,	-- 裂地术
+		[157997] = true,	-- 寒冰新星
+		[102359] = true,	-- 群体缠绕
+	}
+
+	local function msgChannel()
+		return IsPartyLFG() and "INSTANCE_CHAT" or IsInRaid() and "RAID" or "PARTY"
+	end
 
 	local function updateAlert(_, ...)
 		if not IsInGroup() then return end
 		if NDuiDB["Misc"]["AlertInInstance"] and (not IsInInstance() or IsPartyLFG()) then return end
 
-		local _, eventType, _, sourceGUID, sourceName, sourceFlags, _, _, destName, _, _, spellID, _, _, extraskillID = ...
-		if not sourceGUID then return end	-- env exclude
-		if NDuiDB["Misc"]["OwnInterrupt"] and sourceName ~= UnitName("player") and not isAllyPet(sourceFlags) then return end
+		local _, eventType, _, sourceGUID, sourceName, sourceFlags, _, _, destName, _, _, spellID, _, _, extraskillID, _, _, auraType = ...
+		if not sourceGUID or sourceName == destName then return end
 
 		if UnitInRaid(sourceName) or UnitInParty(sourceName) or isAllyPet(sourceFlags) then
 			local infoText = infoType[eventType]
 			if infoText then
-				SendChatMessage(format(infoText, sourceName..GetSpellLink(spellID), destName..GetSpellLink(extraskillID)), IsPartyLFG() and "INSTANCE_CHAT" or IsInRaid() and "RAID" or "PARTY")
+				if infoText == L["BrokenSpell"] then
+					if auraType and auraType == AURA_TYPE_BUFF or blackList[spellID] then return end	-- need reviewed
+					SendChatMessage(format(infoText, sourceName..GetSpellLink(extraskillID), destName..GetSpellLink(spellID)), msgChannel())
+				else
+					if NDuiDB["Misc"]["OwnInterrupt"] and sourceName ~= UnitName("player") and not isAllyPet(sourceFlags) then return end
+					SendChatMessage(format(infoText, sourceName..GetSpellLink(spellID), destName..GetSpellLink(extraskillID)), msgChannel())
+				end
 			end
 		end
 	end

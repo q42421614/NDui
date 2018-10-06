@@ -187,6 +187,23 @@ local function hideInvitePopup(_, name)
 	end
 end
 
+-- 过滤海岛探险中艾泽里特的获取信息
+local azerite = ISLANDS_QUEUE_WEEKLY_QUEST_PROGRESS:gsub("%%d/%%d ", "")
+local function filterAzeriteGain(_, _, msg)
+	if msg:find(azerite) then
+		return true
+	end
+end
+
+local function isPlayerOnIslands()
+	local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
+	if instanceType == "scenario" and maxPlayers == 3 then
+		ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", filterAzeriteGain)
+	else
+		ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", filterAzeriteGain)
+	end
+end
+
 function module:ChatFilter()
 	genFilterList()
 	genChatAtList()
@@ -212,4 +229,6 @@ function module:ChatFilter()
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", blockInviteString)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", blockWhisperString)
 	B:RegisterEvent("PARTY_INVITE_REQUEST", hideInvitePopup)
+
+	B:RegisterEvent("PLAYER_ENTERING_WORLD", isPlayerOnIslands)
 end
