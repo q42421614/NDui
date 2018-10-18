@@ -83,7 +83,7 @@ function UF:CreateRaidDebuffs(self)
 	bu.EnableTooltip = not NDuiDB["UFs"]["AurasClickThrough"]
 	bu.ShowDebuffBorder = NDuiDB["UFs"]["DebuffBorder"]
 	bu.FilterDispellableDebuff = NDuiDB["UFs"]["Dispellable"]
-	if NDuiDB["UFs"]["InstanceAuras"] then bu.Debuffs = C.RaidDebuffs end
+	if NDuiDB["UFs"]["InstanceAuras"] then bu.Debuffs = NDuiADB["RaidDebuffs"] end
 	self.RaidDebuffs = bu
 end
 
@@ -170,8 +170,7 @@ local defaultSpellList = {
 }
 
 function UF:DefaultClickSets()
-	if not NDuiDB["RaidClickSets"] then
-		NDuiDB["RaidClickSets"] = {}
+	if not next(NDuiDB["RaidClickSets"]) then
 		for k, v in pairs(defaultSpellList[DB.MyClass]) do
 			local clickSet = keyList[k][2]..keyList[k][1]
 			NDuiDB["RaidClickSets"][clickSet] = {keyList[k][1], keyList[k][2], v}

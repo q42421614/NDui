@@ -1,8 +1,15 @@
 local _, ns = ...
 local B, C, L, DB = unpack(ns)
+local module = B:RegisterModule("GUI")
 
 -- Default Settings
 local defaultSettings = {
+	BFA = false,
+	Mover = {},
+	AuraWatchList = {},
+	InternalCD = {},
+	AuraWatchMover = {},
+	RaidClickSets = {},
 	Actionbar = {
 		Enable = true,
 		Hotkeys = true,
@@ -149,6 +156,7 @@ local defaultSettings = {
 		ChatLine = true,
 		MenuLine = true,
 		ClassLine = true,
+		Details = true,
 	},
 	Tooltip = {
 		CombatHide = false,
@@ -188,17 +196,56 @@ local defaultSettings = {
 		QuestProgress = false,
 		OnlyCompleteRing = false,
 	},
-	Settings = {
-		LockUIScale = false,
-		UIScale = .8,
-		GUIScale = 1,
-		Format = 1,
-		VersionCheck = true,
-	},
 	Tutorial = {
 		Complete = false,
 	},
 }
+
+local accountSettings = {
+	ChatFilterList = "%*",
+	ChatAtList = "",
+	Timestamp = false,
+	NameplateFilter = {[1]={}, [2]={}},
+	RaidDebuffs = {},
+	Changelog = {},
+	totalGold = {},
+	RepairType = 1,
+	AutoSell = true,
+	GuildSortBy = 1,
+	GuildSortOrder = true,
+	ShowFPS = false,
+	DetectVersion = DB.Version,
+	ResetDetails = true,
+	LockUIScale = false,
+	UIScale = .8,
+	GUIScale = 1,
+	NumberFormat = 1,
+	VersionCheck = true,
+	DBMRequest = false,
+	SkadaRequest = false,
+	BWRequest = false,
+}
+
+local function InitialSettings(source, target)
+	for i, j in pairs(source) do
+		if type(j) == "table" then
+			if target[i] == nil then target[i] = {} end
+			for k, v in pairs(j) do
+				if target[i][k] == nil then
+					target[i][k] = v
+				end
+			end
+		else
+			if target[i] == nil then target[i] = j end
+		end
+	end
+
+	for i in pairs(target) do
+		if source[i] == nil then
+			target[i] = nil
+		end
+	end
+end
 
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("ADDON_LOADED")
@@ -209,21 +256,8 @@ loader:SetScript("OnEvent", function(self, _, addon)
 		NDuiDB["BFA"] = true
 	end
 
-	for i, j in pairs(defaultSettings) do
-		if type(j) == "table" then
-			if NDuiDB[i] == nil then NDuiDB[i] = {} end
-			for k, v in pairs(j) do
-				if NDuiDB[i][k] == nil then
-					NDuiDB[i][k] = v
-				end
-			end
-		else
-			if NDuiDB[i] == nil then NDuiDB[i] = j end
-		end
-	end
-
-	-- Others
-	NDuiADB["NameplateFilter"] = NDuiADB["NameplateFilter"] or {[1] = {}, [2] = {}}
+	InitialSettings(defaultSettings, NDuiDB)
+	InitialSettings(accountSettings, NDuiADB)
 
 	self:UnregisterAllEvents()
 end)
@@ -314,11 +348,10 @@ local optionList = {		-- type, key, value, name, horizon, doubleline
 		{},--blank
 		{1, "UFs", "AurasClickThrough", L["RaidAuras ClickThrough"]},
 		{1, "UFs", "DebuffBorder", L["Auras Border"], true},
-		{1, "UFs", "Dispellable", L["Dispellable Only"]},
-		{1, "UFs", "InstanceAuras", L["Instance Auras"], true},
-		{},--blank
+		{1, "UFs", "AutoRes", L["UFs AutoRes"]},
+		{1, "UFs", "Dispellable", L["Dispellable Only"], true},
 		{1, "UFs", "RaidClickSets", L["Enable ClickSets"]},
-		{1, "UFs", "AutoRes", L["UFs AutoRes"], true},
+		{1, "UFs", "InstanceAuras", L["Instance Auras"], true},
 	},
 	[5] = {
 		{1, "Nameplate", "Enable", "|cff00cc4c"..L["Enable Nameplate"]},
@@ -394,13 +427,13 @@ local optionList = {		-- type, key, value, name, horizon, doubleline
 		{1, "Chat", "Sticky", L["Chat Sticky"], true},
 		{1, "Chat", "Oldname", L["Default Channel"]},
 		{1, "Chat", "WhisperColor", L["Differ WhipserColor"], true},
-		{1, "Chat", "Timestamp", L["Timestamp"]},
+		{1, "ACCOUNT", "Timestamp", L["Timestamp"], false, nil, function() B.UpdateTimestamp() end},
 		{},--blank
 		{1, "Chat", "EnableFilter", L["Enable Chatfilter"]},
 		{1, "Chat", "BlockAddonAlert", L["Block Addon Alert"], true},
 		{3, "Chat", "Matches", L["Keyword Match"], false, {1, 3, 0}},
-		{2, "Chat", "FilterList", L["Filter List"], true, nil, function() B.genFilterList() end},
-		{2, "Chat", "AtList", L["@List"], false, nil, function() B.genChatAtList() end},
+		{2, "ACCOUNT", "ChatFilterList", L["Filter List"], true, nil, function() B.genFilterList() end},
+		{2, "ACCOUNT", "ChatAtList", L["@List"], false, nil, function() B.genChatAtList() end},
 	},
 	[9] = {
 		{1, "Map", "Coord", L["Map Coords"]},
@@ -430,6 +463,7 @@ local optionList = {		-- type, key, value, name, horizon, doubleline
 		{1, "Skins", "Bigwigs", L["Bigwigs Skin"]},
 		{1, "Skins", "TMW", L["TMW Skin"], true},
 		{1, "Skins", "WeakAuras", L["WeakAuras Skin"]},
+		{1, "Skins", "Details", L["Details Skin"], true},
 	},
 	[11] = {
 		{1, "Tooltip", "CombatHide", L["Hide Tooltip"]},
@@ -462,13 +496,13 @@ local optionList = {		-- type, key, value, name, horizon, doubleline
 		{1, "Misc", "SoloInfo", L["SoloInfo"], true},
 	},
 	[13] = {
-		{1, "Settings", "VersionCheck", L["Version Check"]},
+		{1, "ACCOUNT", "VersionCheck", L["Version Check"]},
 		{},--blank
-		{3, "Settings", "UIScale", L["Setup UIScale"], false, {.5, 1.1, 2}},
-		{1, "Settings", "LockUIScale", "|cff00cc4c"..L["Lock UIScale"], true},
+		{3, "ACCOUNT", "UIScale", L["Setup UIScale"], false, {.5, 1.1, 2}},
+		{1, "ACCOUNT", "LockUIScale", "|cff00cc4c"..L["Lock UIScale"], true},
 		{},--blank
-		{3, "Settings", "GUIScale", L["GUI Scale"], false, {.5, 1.5, 1}},
-		{4, "Settings", "Format", L["Numberize"], true, {L["Number Type1"], L["Number Type2"], L["Number Type3"]}},
+		{3, "ACCOUNT", "GUIScale", L["GUI Scale"], false, {.5, 1.5, 1}},
+		{4, "ACCOUNT", "NumberFormat", L["Numberize"], true, {L["Number Type1"], L["Number Type2"], L["Number Type3"]}},
 	},
 }
 
@@ -511,6 +545,22 @@ local function CreateTab(parent, i, name)
 	return tab
 end
 
+local function NDUI_VARIABLE(key, value, newValue)
+	if key == "ACCOUNT" then
+		if newValue ~= nil then
+			NDuiADB[value] = newValue
+		else
+			return NDuiADB[value]
+		end
+	else
+		if newValue ~= nil then
+			NDuiDB[key][value] = newValue
+		else
+			return NDuiDB[key][value]
+		end
+	end
+end
+
 local function CreateOption(i)
 	local parent, offset = guiPage[i].child, 20
 
@@ -526,9 +576,10 @@ local function CreateOption(i)
 				offset = offset + 35
 			end
 			B.CreateFS(cb, 14, name, false, "LEFT", 30, 0)
-			cb:SetChecked(NDuiDB[key][value])
+			cb:SetChecked(NDUI_VARIABLE(key, value))
 			cb:SetScript("OnClick", function()
-				NDuiDB[key][value] = cb:GetChecked()
+				NDUI_VARIABLE(key, value, cb:GetChecked())
+				if callBack then callBack() end
 			end)
 		-- Editbox
 		elseif type == 2 then
@@ -540,12 +591,12 @@ local function CreateOption(i)
 				eb:SetPoint("TOPLEFT", 35, -offset - 20)
 				offset = offset + 70
 			end
-			eb:SetText(NDuiDB[key][value])
+			eb:SetText(NDUI_VARIABLE(key, value))
 			eb:HookScript("OnEscapePressed", function()
-				eb:SetText(NDuiDB[key][value])
+				eb:SetText(NDUI_VARIABLE(key, value))
 			end)
 			eb:HookScript("OnEnterPressed", function()
-				NDuiDB[key][value] = eb:GetText()
+				NDUI_VARIABLE(key, value, eb:GetText())
 				if callBack then callBack() end
 			end)
 			eb:SetScript("OnEnter", function(self)
@@ -570,10 +621,10 @@ local function CreateOption(i)
 			end
 			s:SetWidth(190)
 			s:SetMinMaxValues(min, max)
-			s:SetValue(NDuiDB[key][value])
+			s:SetValue(NDUI_VARIABLE(key, value))
 			s:SetScript("OnValueChanged", function(_, v)
 				local current = tonumber(format("%."..step.."f", v))
-				NDuiDB[key][value] = current
+				NDUI_VARIABLE(key, value, current)
 				_G[s:GetName().."Text"]:SetText(current)
 			end)
 
@@ -582,7 +633,7 @@ local function CreateOption(i)
 			_G[s:GetName().."High"]:SetText(max)
 			_G[s:GetName().."Text"]:ClearAllPoints()
 			_G[s:GetName().."Text"]:SetPoint("TOP", s, "BOTTOM", 0, 3)
-			_G[s:GetName().."Text"]:SetText(format("%."..step.."f", NDuiDB[key][value]))
+			_G[s:GetName().."Text"]:SetText(format("%."..step.."f", NDUI_VARIABLE(key, value)))
 			s:SetBackdrop(nil)
 			local bd = CreateFrame("Frame", nil, s)
 			bd:SetPoint("TOPLEFT", 14, -2)
@@ -601,12 +652,12 @@ local function CreateOption(i)
 				dd:SetPoint("TOPLEFT", 35, -offset - 20)
 				offset = offset + 70
 			end
-			dd.Text:SetText(data[NDuiDB[key][value]])
+			dd.Text:SetText(data[NDUI_VARIABLE(key, value)])
 
 			local opt = dd.options
 			dd.button:HookScript("OnClick", function()
 				for num = 1, #data do
-					if num == NDuiDB[key][value] then
+					if num == NDUI_VARIABLE(key, value) then
 						opt[num]:SetBackdropColor(1, .8, 0, .3)
 						opt[num].selected = true
 					else
@@ -617,7 +668,7 @@ local function CreateOption(i)
 			end)
 			for i in pairs(data) do
 				opt[i]:HookScript("OnClick", function()
-					NDuiDB[key][value] = i
+					NDUI_VARIABLE(key, value, i)
 				end)
 			end
 
@@ -639,22 +690,22 @@ local function CreateOption(i)
 			local tex = f:CreateTexture()
 			tex:SetPoint("TOPLEFT", 2, -2)
 			tex:SetPoint("BOTTOMRIGHT", -2, 2)
-			tex:SetColorTexture(NDuiDB[key][value].r, NDuiDB[key][value].g, NDuiDB[key][value].b)
+			tex:SetColorTexture(NDUI_VARIABLE(key, value).r, NDUI_VARIABLE(key, value).g, NDUI_VARIABLE(key, value).b)
 
 			local function onUpdate()
 				local r, g, b = ColorPickerFrame:GetColorRGB()
 				tex:SetColorTexture(r, g, b)
-				NDuiDB[key][value].r, NDuiDB[key][value].g, NDuiDB[key][value].b = r, g, b
+				NDUI_VARIABLE(key, value).r, NDUI_VARIABLE(key, value).g, NDUI_VARIABLE(key, value).b = r, g, b
 			end
 
 			local function onCancel()
 				local r, g, b = ColorPicker_GetPreviousValues()
 				tex:SetColorTexture(r, g, b)
-				NDuiDB[key][value].r, NDuiDB[key][value].g, NDuiDB[key][value].b = r, g, b
+				NDUI_VARIABLE(key, value).r, NDUI_VARIABLE(key, value).g, NDUI_VARIABLE(key, value).b = r, g, b
 			end
 
 			f:SetScript("OnClick", function()
-				local r, g, b = NDuiDB[key][value].r, NDuiDB[key][value].g, NDuiDB[key][value].b
+				local r, g, b = NDUI_VARIABLE(key, value).r, NDUI_VARIABLE(key, value).g, NDUI_VARIABLE(key, value).b
 				ColorPickerFrame.func = onUpdate
 				ColorPickerFrame.previousValues = {r = r, g = g, b = b}
 				ColorPickerFrame.cancelFunc = onCancel
@@ -671,36 +722,325 @@ local function CreateOption(i)
 	end
 end
 
+local function sortBars(barTable)
+	local num = 1
+	for _, bar in pairs(barTable) do
+		if num == 1 then
+			bar:SetPoint("TOPLEFT", 10, -10)
+		else
+			bar:SetPoint("TOPLEFT", 10, -10 - 35*(num-1))
+		end
+		num = num + 1
+	end
+end
+
+local function createExtraGUI(parent, title, bgFrame)
+	local frame = CreateFrame("Frame", nil, parent)
+	frame:SetSize(300, 600)
+	frame:SetPoint("TOPLEFT", f, "TOPRIGHT", 2, 0)
+	B.CreateBD(frame)
+	B.CreateSD(frame)
+	B.CreateTex(frame)
+	parent:HookScript("OnHide", function()
+		frame:Hide()
+	end)
+
+	if title then
+		B.CreateFS(frame, 14, title, "system", "TOPLEFT", 20, -25)
+	end
+
+	if bgFrame then
+		frame.bg = CreateFrame("Frame", nil, frame)
+		frame.bg:SetSize(280, 540)
+		frame.bg:SetPoint("TOPLEFT", 10, -50)
+		B.CreateBD(frame.bg, .3)
+	end
+
+	return frame
+end
+
+local function clearEdit(options)
+	for i = 1, #options do
+		module:ClearEdit(options[i])
+	end
+end
+
+local raidDebuffsGUI, clickCastGUI, autoSelectInstance
+
+local function setupRaidDebuffs()
+	if clickCastGUI and clickCastGUI:IsShown() then clickCastGUI:Hide() end
+	if raidDebuffsGUI then ToggleFrame(raidDebuffsGUI) return end
+
+	raidDebuffsGUI = createExtraGUI(guiPage[4], L["RaidFrame Debuffs"], true)
+
+	local barTable = {}
+	local function updateBars(instName)
+		for name, value in pairs(barTable) do
+			if name == instName then
+				for _, bar in pairs(value) do
+					bar:Show()
+				end
+			else
+				for _, bar in pairs(value) do
+					bar:Hide()
+				end
+			end
+		end
+	end
+
+	local frame = raidDebuffsGUI.bg
+	local options = {}
+	local iType = module:CreateDropdown(frame, L["Type*"], 10, -30, {DUNGEONS, RAID})
+	for i = 1, 2 do
+		iType.options[i]:HookScript("OnClick", function()
+			for j = 1, 2 do
+				module:ClearEdit(options[j])
+				updateBars("")
+				if i == j then
+					options[j]:Show()
+				else
+					options[j]:Hide()
+				end
+			end
+		end)
+	end
+
+	local dungeons = {}
+	for _, dungeon in next, C_ChallengeMode.GetMapTable() do
+		local name = C_ChallengeMode.GetMapUIInfo(dungeon)
+		tinsert(dungeons, name)
+	end
+	local raids = {
+		[1] = EJ_GetInstanceInfo(1031),
+	}
+
+	options[1] = module:CreateDropdown(frame, DUNGEONS.."*", 120, -30, dungeons, nil, 130, 30)
+	options[1]:Hide()
+	options[2] = module:CreateDropdown(frame, RAID.."*", 120, -30, raids, nil, 130, 30)
+	options[2]:Hide()
+	for i = 1, 2 do
+		for j = 1, #options[i].options do
+			options[i].options[j]:HookScript("OnClick", function(self)
+				updateBars(self.text)
+			end)
+		end
+	end
+
+	options[3] = module:CreateEditbox(frame, "ID*", 10, -90, L["ID Intro"])
+	options[4] = module:CreateEditbox(frame, L["Priority"], 120, -90, L["Priority Intro"])
+
+	function autoSelectInstance()
+		local instName = GetInstanceInfo()
+		for i = 1, 2 do
+			local option = options[i]
+			for j = 1, #option.options do
+				local name = option.options[j].text
+				if instName == name then
+					iType.options[i]:Click()
+					options[i].options[j]:Click()
+				end
+			end
+		end
+	end
+
+	local function createBar(parent, instName, spellID, priority)
+		local name, _, texture = GetSpellInfo(spellID)
+
+		local bar = CreateFrame("Frame", nil, parent)
+		bar:SetSize(220, 30)
+		B.CreateBD(bar, .3)
+		if not barTable[instName] then barTable[instName] = {} end
+		barTable[instName][spellID] = bar
+
+		local icon, close = module:CreateBarWidgets(bar, texture)
+		B.AddTooltip(icon, "ANCHOR_RIGHT", spellID)
+		close:SetScript("OnClick", function()
+			bar:Hide()
+			NDuiADB["RaidDebuffs"][instName][spellID] = nil
+			barTable[instName][spellID] = nil
+			sortBars(barTable[instName])
+		end)
+
+		local prioString = B.CreateFS(icon, 14, priority)
+		prioString:SetTextColor(0, 1, 0)
+		local spellName = B.CreateFS(bar, 14, name, false, "LEFT", 30, 0)
+		spellName:SetWidth(85)
+		spellName:SetJustifyH("LEFT")
+		local instance = B.CreateFS(bar, 14, instName, false, "RIGHT", -35, 0)
+		instance:SetTextColor(.6, .8, 1)
+		instance:SetWidth(80)
+		instance:SetJustifyH("RIGHT")
+
+		sortBars(barTable[instName])
+	end
+
+	local function addClick(scroll, options)
+		local dungeonName, raidName, spellID, priority = options[1].Text:GetText(), options[2].Text:GetText(), tonumber(options[3]:GetText()), tonumber(options[4]:GetText())
+		local instName = dungeonName or raidName
+		if not instName or not spellID then UIErrorsFrame:AddMessage(DB.InfoColor..L["Incomplete Input"]) return end
+		if spellID and not GetSpellInfo(spellID) then UIErrorsFrame:AddMessage(DB.InfoColor..L["Incorrect SpellID"]) return end
+		if NDuiADB["RaidDebuffs"][instName][spellID] then UIErrorsFrame:AddMessage(DB.InfoColor..L["Existing ID"]) return end
+
+		priority = (priority and priority < 0 and 0) or priority or 2
+		NDuiADB["RaidDebuffs"][instName][spellID] = priority
+		createBar(scroll.child, instName, spellID, priority)
+	end
+
+	local scroll = module:CreateScroll(frame, 240, 350)
+	scroll.reset = B.CreateButton(frame, 70, 25, RESET)
+	scroll.reset:SetPoint("TOPLEFT", 10, -140)
+	StaticPopupDialogs["RESET_NDUI_RAIDDEBUFFS"] = {
+		text = L["Reset your raiddebuffs list?"],
+		button1 = YES,
+		button2 = NO,
+		OnAccept = function()
+			NDuiADB["RaidDebuffs"] = {}
+			ReloadUI()
+		end,
+		whileDead = 1,
+	}
+	scroll.reset:SetScript("OnClick", function()
+		StaticPopup_Show("RESET_NDUI_RAIDDEBUFFS")
+	end)
+	scroll.add = B.CreateButton(frame, 70, 25, ADD)
+	scroll.add:SetPoint("TOPRIGHT", -10, -140)
+	scroll.add:SetScript("OnClick", function()
+		addClick(scroll, options)
+	end)
+	scroll.clear = B.CreateButton(frame, 70, 25, KEY_NUMLOCK_MAC)
+	scroll.clear:SetPoint("RIGHT", scroll.add, "LEFT", -10, 0)
+	scroll.clear:SetScript("OnClick", function()
+		clearEdit(options)
+		updateBars("")
+	end)
+
+	for instName, value in pairs(NDuiADB["RaidDebuffs"]) do
+		for spell, priority in pairs(value) do
+			createBar(scroll.child, instName, spell, priority)
+		end
+	end
+	updateBars("")
+end
+
+local function setupClickCast()
+	if raidDebuffsGUI and raidDebuffsGUI:IsShown() then raidDebuffsGUI:Hide() end
+	if clickCastGUI then ToggleFrame(clickCastGUI) return end
+
+	clickCastGUI = createExtraGUI(guiPage[4], L["Add ClickSets"], true)
+
+	local textIndex, barTable = {
+		["target"] = TARGET,
+		["focus"] = SET_FOCUS,
+		["follow"] = FOLLOW,
+	}, {}
+
+	local function createBar(parent, data)
+		local key, modKey, value = unpack(data)
+		local clickSet = modKey..key
+		local name, texture, _
+		if tonumber(value) then
+			name, _, texture = GetSpellInfo(value)
+		else
+			name = textIndex[value] or MACRO
+			texture = 136243
+		end
+
+		local bar = CreateFrame("Frame", nil, parent)
+		bar:SetSize(220, 30)
+		B.CreateBD(bar, .3)
+		barTable[clickSet] = bar
+
+		local icon, close = module:CreateBarWidgets(bar, texture)
+		B.AddTooltip(icon, "ANCHOR_RIGHT", value, "system")
+		close:SetScript("OnClick", function()
+			bar:Hide()
+			NDuiDB["RaidClickSets"][clickSet] = nil
+			barTable[clickSet] = nil
+			sortBars(barTable)
+		end)
+
+		local key1 = B.CreateFS(bar, 14, key, false, "LEFT", 35, 0)
+		key1:SetTextColor(.6, .8, 1)
+		modKey = modKey ~= "" and "+ "..modKey or ""
+		local key2 = B.CreateFS(bar, 14, modKey, false, "LEFT", 130, 0)
+		key2:SetTextColor(0, 1, 0)
+
+		sortBars(barTable)
+	end
+
+	local frame = clickCastGUI.bg
+	local keyList, options = {
+		KEY_BUTTON1,
+		KEY_BUTTON2,
+		KEY_BUTTON3,
+		KEY_BUTTON4,
+		KEY_BUTTON5,
+		L["WheelUp"],
+		L["WheelDown"],
+	}, {}
+
+	options[1] = module:CreateEditbox(frame, L["Action*"], 10, -30, L["Action Intro"], 260, 30)
+	options[2] = module:CreateDropdown(frame, L["Key*"], 10, -90, keyList, L["Key Intro"], 120, 30)
+	options[3] = module:CreateDropdown(frame, L["Modified Key"], 170, -90, {NONE, "ALT", "CTRL", "SHIFT"}, L["ModKey Intro"], 85, 30)
+
+	local scroll = module:CreateScroll(frame, 240, 350)
+	scroll.reset = B.CreateButton(frame, 70, 25, RESET)
+	scroll.reset:SetPoint("TOPLEFT", 10, -140)
+	StaticPopupDialogs["RESET_NDUI_CLICKSETS"] = {
+		text = L["Reset your click sets?"],
+		button1 = YES,
+		button2 = NO,
+		OnAccept = function()
+			NDuiDB["RaidClickSets"] = nil
+			ReloadUI()
+		end,
+		whileDead = 1,
+	}
+	scroll.reset:SetScript("OnClick", function()
+		StaticPopup_Show("RESET_NDUI_CLICKSETS")
+	end)
+
+	local function addClick(scroll, options)
+		local value, key, modKey = options[1]:GetText(), options[2].Text:GetText(), options[3].Text:GetText()
+		if not value or not key then UIErrorsFrame:AddMessage(DB.InfoColor..L["Incomplete Input"]) return end
+		if tonumber(value) and not GetSpellInfo(value) then UIErrorsFrame:AddMessage(DB.InfoColor..L["Incorrect SpellID"]) return end
+		if (not tonumber(value)) and value ~= "target" and value ~= "focus" and value ~= "follow" and not value:match("/") then UIErrorsFrame:AddMessage(DB.InfoColor..L["Invalid Input"]) return end
+		if not modKey or modKey == NONE then modKey = "" end
+		local clickSet = modKey..key
+		if NDuiDB["RaidClickSets"][clickSet] then UIErrorsFrame:AddMessage(DB.InfoColor..L["Existing ClickSet"]) return end
+
+		NDuiDB["RaidClickSets"][clickSet] = {key, modKey, value}
+		createBar(scroll.child, NDuiDB["RaidClickSets"][clickSet])
+		clearEdit(options)
+	end
+
+	scroll.add = B.CreateButton(frame, 70, 25, ADD)
+	scroll.add:SetPoint("TOPRIGHT", -10, -140)
+	scroll.add:SetScript("OnClick", function()
+		addClick(scroll, options)
+	end)
+
+	scroll.clear = B.CreateButton(frame, 70, 25, KEY_NUMLOCK_MAC)
+	scroll.clear:SetPoint("RIGHT", scroll.add, "LEFT", -10, 0)
+	scroll.clear:SetScript("OnClick", function()
+		clearEdit(options)
+	end)
+
+	for _, v in pairs(NDuiDB["RaidClickSets"]) do
+		createBar(scroll.child, v)
+	end
+end
+
 local plateGUI
-local function SetupPlateAura()
+local function setupPlateAura()
 	if plateGUI then ToggleFrame(plateGUI) return end
 
-	plateGUI = CreateFrame("Frame", nil, guiPage[5])
-	plateGUI:SetSize(300, 600)
-	plateGUI:SetPoint("TOPLEFT", f, "TOPRIGHT", 2, 0)
-	B.CreateBD(plateGUI)
-	B.CreateSD(plateGUI)
-	B.CreateTex(plateGUI)
-	guiPage[5]:HookScript("OnHide", function()
-		plateGUI:Hide()
-	end)
+	plateGUI = createExtraGUI(guiPage[5])
 
 	local frameData = {
 		[1] = {text = L["WhiteList"], offset = -25, barList = {}},
 		[2] = {text = L["BlackList"], offset = -315, barList = {}},
 	}
-
-	local function sortBars(index)
-		local num = 1
-		for _, bar in pairs(frameData[index].barList) do
-			if num == 1 then
-				bar:SetPoint("TOPLEFT", 10, -10)
-			else
-				bar:SetPoint("TOPLEFT", 10, -10 - 35*(num-1))
-			end
-			num = num + 1
-		end
-	end
 
 	local function createBar(parent, index, spellID)
 		local name, _, texture = GetSpellInfo(spellID)
@@ -709,25 +1049,13 @@ local function SetupPlateAura()
 		B.CreateBD(bar, .3)
 		frameData[index].barList[spellID] = bar
 
-		local icon = CreateFrame("Frame", nil, bar)
-		icon:SetSize(20, 20)
-		icon:SetPoint("LEFT", 5, 0)
-		B.CreateIF(icon, true)
-		icon.Icon:SetTexture(texture)
+		local icon, close = module:CreateBarWidgets(bar, texture)
 		B.AddTooltip(icon, "ANCHOR_RIGHT", spellID)
-
-		local close = CreateFrame("Button", nil, bar)
-		close:SetSize(20, 20)
-		close:SetPoint("RIGHT", -5, 0)
-		close.Icon = close:CreateTexture(nil, "ARTWORK")
-		close.Icon:SetAllPoints()
-		close.Icon:SetTexture("Interface\\BUTTONS\\UI-GroupLoot-Pass-Up")
-		close:SetHighlightTexture(close.Icon:GetTexture())
 		close:SetScript("OnClick", function()
 			bar:Hide()
-			frameData[index].barList[spellID] = nil
 			NDuiADB["NameplateFilter"][index][spellID] = nil
-			sortBars(index)
+			frameData[index].barList[spellID] = nil
+			sortBars(frameData[index].barList)
 		end)
 
 		local spellName = B.CreateFS(bar, 14, name, false, "LEFT", 30, 0)
@@ -735,7 +1063,7 @@ local function SetupPlateAura()
 		spellName:SetJustifyH("LEFT")
 		if index == 2 then spellName:SetTextColor(1, 0, 0) end
 
-		sortBars(index)
+		sortBars(frameData[index].barList)
 	end
 
 	local function addClick(parent, index)
@@ -750,26 +1078,14 @@ local function SetupPlateAura()
 
 	for index, value in ipairs(frameData) do
 		B.CreateFS(plateGUI, 14, value.text, "system", "TOPLEFT", 20, value.offset)
-		local frame = CreateFrame("Frame", "frame"..index, plateGUI)
+		local frame = CreateFrame("Frame", nil, plateGUI)
 		frame:SetSize(280, 250)
 		frame:SetPoint("TOPLEFT", 10, value.offset - 25)
 		B.CreateBD(frame, .3)
 
-		local scroll = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-		scroll:SetSize(240, 200)
-		scroll:SetPoint("BOTTOMLEFT", 10, 10)
-		B.CreateBD(scroll, .3)
-		scroll.child = CreateFrame("Frame", nil, scroll)
-		scroll.child:SetSize(240, 1)
-		scroll:SetScrollChild(scroll.child)
-		if IsAddOnLoaded("AuroraClassic") then
-			local F = unpack(AuroraClassic)
-			F.ReskinScroll(scroll.ScrollBar)
-		end
-
+		local scroll = module:CreateScroll(frame, 240, 200)
 		scroll.box = B.CreateEditBox(frame, 185, 25)
 		scroll.box:SetPoint("TOPLEFT", 10, -10)
-
 		scroll.add = B.CreateButton(frame, 70, 25, ADD)
 		scroll.add:SetPoint("TOPRIGHT", -8, -10)
 		scroll.add:SetScript("OnClick", function()
@@ -789,7 +1105,7 @@ local function OpenGUI()
 	-- Main Frame
 	f = CreateFrame("Frame", "NDuiGUI", UIParent)
 	tinsert(UISpecialFrames, "NDuiGUI")
-	f:SetScale(NDuiDB["Settings"]["GUIScale"])
+	f:SetScale(NDuiADB["GUIScale"])
 	f:SetSize(800, 600)
 	f:SetPoint("CENTER")
 	f:SetFrameStrata("HIGH")
@@ -805,12 +1121,12 @@ local function OpenGUI()
 	close:SetFrameLevel(3)
 	close:SetScript("OnClick", function() f:Hide() end)
 
-	local scaleOld = NDuiDB["Settings"]["UIScale"]
+	local scaleOld = NDuiADB["UIScale"]
 	local ok = B.CreateButton(f, 80, 20, OKAY)
 	ok:SetPoint("RIGHT", close, "LEFT", -10, 0)
 	ok:SetFrameLevel(3)
 	ok:SetScript("OnClick", function()
-		local scale = NDuiDB["Settings"]["UIScale"]
+		local scale = NDuiADB["UIScale"]
 		if scale ~= scaleOld then
 			if scale < .64 then
 				UIParent:SetScale(scale)
@@ -890,21 +1206,26 @@ local function OpenGUI()
 	end
 	B:RegisterEvent("PLAYER_REGEN_DISABLED", showLater)
 
+	-- Toggle RaidFrame Debuffs
+	local raidDebuffs = B.CreateButton(guiPage[4].child, 150, 30, L["RaidFrame Debuffs"])
+	raidDebuffs:SetPoint("TOPLEFT", 340, -403)
+	raidDebuffs.text:SetTextColor(.6, .8, 1)
+	raidDebuffs:SetScript("OnClick", function()
+		setupRaidDebuffs()
+		autoSelectInstance()
+	end)
+
 	-- Toggle RaidFrame ClickSets
 	local clickSet = B.CreateButton(guiPage[4].child, 150, 30, L["Add ClickSets"])
-	clickSet:SetPoint("TOPLEFT", 40, -440)
+	clickSet:SetPoint("TOPLEFT", 40, -403)
 	clickSet.text:SetTextColor(.6, .8, 1)
-	clickSet:SetScript("OnClick", function()
-		f:Hide()
-		SlashCmdList["NDUI_AWCONFIG"]()
-		NDui_AWConfigTab12:Click()
-	end)
+	clickSet:SetScript("OnClick", setupClickCast)
 
 	-- Toggle Nameplate aurafilter
 	local plate = B.CreateButton(guiPage[5].child, 150, 30, L["Nameplate AuraFilter"])
 	plate:SetPoint("TOPLEFT", 340, -20)
 	plate.text:SetTextColor(.6, .8, 1)
-	plate:SetScript("OnClick", SetupPlateAura)
+	plate:SetScript("OnClick", setupPlateAura)
 
 	-- Toggle AuraWatch Console
 	local aura = B.CreateButton(guiPage[6].child, 150, 30, L["Add AuraWatch"])
@@ -915,25 +1236,36 @@ local function OpenGUI()
 		SlashCmdList["NDUI_AWCONFIG"]()
 	end)
 
+	-- Reset detail skin
+	local detail = B.CreateButton(guiPage[10].child, 50, 25, RESET)
+	detail:SetPoint("TOPLEFT", 480, -300)
+	detail.text:SetTextColor(.6, .8, 1)
+	detail:SetScript("OnClick", function()
+		NDuiADB["ResetDetails"] = true
+		StaticPopup_Show("RELOAD_NDUI")
+	end)
+
 	SelectTab(1)
 end
 
-local gui = CreateFrame("Button", "GameMenuFrameNDui", GameMenuFrame, "GameMenuButtonTemplate")
-gui:SetText(L["NDui Console"])
-gui:SetPoint("TOP", GameMenuButtonAddons, "BOTTOM", 0, -21)
-GameMenuFrame:HookScript("OnShow", function(self)
-	GameMenuButtonLogout:SetPoint("TOP", gui, "BOTTOM", 0, -21)
-	self:SetHeight(self:GetHeight() + gui:GetHeight() + 22)
-end)
+function module:OnLogin()
+	local gui = CreateFrame("Button", "GameMenuFrameNDui", GameMenuFrame, "GameMenuButtonTemplate")
+	gui:SetText(L["NDui Console"])
+	gui:SetPoint("TOP", GameMenuButtonAddons, "BOTTOM", 0, -21)
+	GameMenuFrame:HookScript("OnShow", function(self)
+		GameMenuButtonLogout:SetPoint("TOP", gui, "BOTTOM", 0, -21)
+		self:SetHeight(self:GetHeight() + gui:GetHeight() + 22)
+	end)
 
-gui:SetScript("OnClick", function()
-	OpenGUI()
-	HideUIPanel(GameMenuFrame)
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
-end)
+	gui:SetScript("OnClick", function()
+		OpenGUI()
+		HideUIPanel(GameMenuFrame)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+	end)
 
--- Aurora Reskin
-if IsAddOnLoaded("AuroraClassic") then
-	local F = unpack(AuroraClassic)
-	F.Reskin(gui)
+	-- Aurora Reskin
+	if IsAddOnLoaded("AuroraClassic") then
+		local F = unpack(AuroraClassic)
+		F.Reskin(gui)
+	end
 end

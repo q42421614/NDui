@@ -2,35 +2,6 @@ local _, ns = ...
 local B, C, L, DB = unpack(ns)
 local module = B:GetModule("Chat")
 
--- Account-wide settings
-local function accountSettings(event)
-	if not NDuiADB["ChatFilter"] then NDuiADB["ChatFilter"] = "" end
-	if not NDuiADB["ChatAt"] then NDuiADB["ChatAt"] = "" end
-	if not NDuiADB["Timestamp"] then NDuiADB["Timestamp"] = false end
-
-	if event == "PLAYER_LOGIN" then
-		NDuiDB["Chat"]["FilterList"] = NDuiADB["ChatFilter"]
-		NDuiDB["Chat"]["AtList"] = NDuiADB["ChatAt"]
-		NDuiDB["Chat"]["Timestamp"] = NDuiADB["Timestamp"]
-	elseif event == "PLAYER_LOGOUT" then
-		NDuiADB["ChatFilter"] = NDuiDB["Chat"]["FilterList"]
-		NDuiADB["ChatAt"] = NDuiDB["Chat"]["AtList"]
-		NDuiADB["Timestamp"] = NDuiDB["Chat"]["Timestamp"]
-	end
-
-	-- Timestamp
-	local greyStamp = DB.GreyColor.."[%H:%M:%S]|r "
-	if NDuiDB["Chat"]["Timestamp"] then
-		SetCVar("showTimestamps", greyStamp)
-	else
-		if GetCVar("showTimestamps") == greyStamp then
-			SetCVar("showTimestamps", "none")
-		end
-	end
-end
-B:RegisterEvent("PLAYER_LOGIN", accountSettings)
-B:RegisterEvent("PLAYER_LOGOUT", accountSettings)
-
 --[[
 	修改自NoGoldSeller，强迫症患者只能接受这个低占用的。
 ]]
@@ -40,7 +11,7 @@ local msgSymbols = {"`", "～", "＠", "＃", "^", "＊", "！", "？", "。", "
 
 local FilterList = {}
 local function genFilterList()
-	FilterList = {string.split(" ", NDuiDB["Chat"]["FilterList"] or "")}
+	FilterList = {string.split(" ", NDuiADB["ChatFilterList"] or "")}
 end
 B.genFilterList = genFilterList
 
@@ -98,7 +69,7 @@ end
 
 local addonBlockList = {
 	"任务进度提示%s?[:：]", "%[接受任务%]", "%(任务完成%)", "<大脚组队提示>", "<大脚团队提示>", "【爱不易】", "EUI:", "EUI_RaidCD", "打断:.+|Hspell", "PS 死亡: .+>", "%*%*.+%*%*",
-	"<iLvl>", ("%-"):rep(30), "<小队物品等级:.+>", "<LFG>", "wowcdk", "进度:", "属性通报", "wowcn%.vip"
+	"<iLvl>", ("%-"):rep(30), "<小队物品等级:.+>", "<LFG>", "进度:", "属性通报", "blizzard%.cn%.%w+%.vip"
 }
 
 local function genAddonBlock(_, _, msg, author)
@@ -120,7 +91,7 @@ end
 ]]
 local chatAtList, at = {}, {}
 local function genChatAtList()
-	chatAtList = {string.split(" ", NDuiDB["Chat"]["AtList"] or "")}
+	chatAtList = {string.split(" ", NDuiADB["ChatAtList"] or "")}
 	local name = UnitName("player")
 	tinsert(chatAtList, name)
 end
@@ -216,6 +187,7 @@ function module:ChatFilter()
 
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", genAddonBlock)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", genAddonBlock)
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_EMOTE", genAddonBlock)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", genAddonBlock)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", genAddonBlock)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID", genAddonBlock)
