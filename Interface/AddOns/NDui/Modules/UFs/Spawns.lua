@@ -235,59 +235,24 @@ function UF:OnLogin()
 					B.Mover(arena[i], L["ArenaFrame"]..i, "Arena"..i, {"BOTTOM", arena[i-1], "TOP", 0, 50}, 150, 30)
 				end
 			end
-
-			local bars = {}
-			for i = 1, 5 do
-				local bar = CreateFrame("Frame", nil, UIParent)
-				bar:SetAllPoints(arena[i])
-				B.CreateSD(bar, 3, 3)
-				bar:Hide()
-
-				bar.Health = CreateFrame("StatusBar", nil, bar)
-				bar.Health:SetAllPoints()
-				bar.Health:SetStatusBarTexture(DB.normTex)
-				bar.Health:SetStatusBarColor(.3, .3, .3)
-				bar.SpecClass = B.CreateFS(bar.Health, 12, "")
-
-				bars[i] = bar
-			end
-
-			local function UpdateArenaPreps(event)
-				if event == "ARENA_OPPONENT_UPDATE" then
-					for i = 1, 5 do bars[i]:Hide() end
-				else
-					local numOpps = GetNumArenaOpponentSpecs()
-					if numOpps > 0 then
-						for i = 1, 5 do
-							local s = GetArenaOpponentSpec(i)
-							local _, spec, class
-							if s and s > 0 then 
-								_, spec, _, _, _, class = GetSpecializationInfoByID(s)
-							end
-							if i <= numOpps and class and spec then
-								bars[i].Health:SetStatusBarColor(B.ClassColor(class))
-								bars[i].SpecClass:SetText(spec.."  -  "..LOCALIZED_CLASS_NAMES_MALE[class] or "UNKNOWN")
-								bars[i]:Show()
-							else
-								bars[i]:Hide()
-							end
-						end
-					else
-						for i = 1, 5 do bars[i]:Hide() end
-					end
-				end
-			end
-			B:RegisterEvent("PLAYER_ENTERING_WORLD", UpdateArenaPreps)
-			B:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS", UpdateArenaPreps)
-			B:RegisterEvent("ARENA_OPPONENT_UPDATE", UpdateArenaPreps)
 		end
 	end
 
 	if NDuiDB["UFs"]["RaidFrame"] then
-		-- Disable Default RaidFrame
-		B.HideObject(CompactRaidFrameContainer)
-		B.HideObject(CompactRaidFrameManager)
-		RaidOptionsFrame_UpdatePartyFrames = B.Dummy	-- need reviewed
+		-- Hide Default RaidFrame
+		local function HideRaid()
+			if InCombatLockdown() then return end
+			B.HideObject(CompactRaidFrameManager)
+			local compact_raid = CompactRaidFrameManager_GetSetting("IsShown")
+			if compact_raid and compact_raid ~= "0" then
+				CompactRaidFrameManager_SetSetting("IsShown", "0")
+			end
+		end
+		CompactRaidFrameManager:HookScript("OnShow", HideRaid)
+		if CompactRaidFrameManager_UpdateShown then
+			hooksecurefunc("CompactRaidFrameManager_UpdateShown", HideRaid)
+		end
+		CompactRaidFrameContainer:UnregisterAllEvents()
 
 		-- Group Styles
 		oUF:RegisterStyle("Raid", CreateRaidStyle)

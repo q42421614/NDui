@@ -75,7 +75,11 @@ function B:CreateFS(size, text, classcolor, anchor, x, y)
 	fs:SetFont(DB.Font[1], size, DB.Font[3])
 	fs:SetText(text)
 	fs:SetWordWrap(false)
-	if classcolor then fs:SetTextColor(cr, cg, cb) end
+	if classcolor and type(classcolor) == "boolean" then
+		fs:SetTextColor(cr, cg, cb)
+	elseif classcolor == "system" then
+		fs:SetTextColor(1, .8, 0)
+	end
 	if anchor and x and y then
 		fs:SetPoint(anchor, x, y)
 	else
@@ -209,7 +213,7 @@ end
 
 -- Numberize
 function B.Numb(n)
-	if NDuiDB["Settings"]["Format"] == 1 then
+	if NDuiADB["NumberFormat"] == 1 then
 		if n >= 1e12 then
 			return ("%.2ft"):format(n / 1e12)
 		elseif n >= 1e9 then
@@ -221,7 +225,7 @@ function B.Numb(n)
 		else
 			return ("%.0f"):format(n)
 		end
-	elseif NDuiDB["Settings"]["Format"] == 2 then
+	elseif NDuiADB["NumberFormat"] == 2 then
 		if n >= 1e12 then
 			return ("%.2f"..L["NumberCap3"]):format(n / 1e12)
 		elseif n >= 1e8 then
@@ -394,6 +398,35 @@ function B.CopyTable(source, target)
 	end
 end
 
+-- Itemlevel
+local iLvlDB = {}
+local itemLevelString = _G["ITEM_LEVEL"]:gsub("%%d", "")
+local tip = CreateFrame("GameTooltip", "NDui_iLvlTooltip", nil, "GameTooltipTemplate")
+
+function B.GetItemLevel(link, arg1, arg2)
+	if iLvlDB[link] then return iLvlDB[link] end
+
+	tip:SetOwner(UIParent, "ANCHOR_NONE")
+	if arg1 and type(arg1) == "string" then
+		tip:SetInventoryItem(arg1, arg2)
+	elseif arg1 and type(arg1) == "number" then
+		tip:SetBagItem(arg1, arg2)
+	else
+		tip:SetHyperlink(link)
+	end
+
+	for i = 2, 5 do
+		local text = _G[tip:GetName().."TextLeft"..i]:GetText() or ""
+		local found = text:find(itemLevelString)
+		if found then
+			local level = text:match("(%d+)%)?$")
+			iLvlDB[link] = tonumber(level)
+			break
+		end
+	end
+	return iLvlDB[link]
+end
+
 -- GUI APIs
 function B:CreateButton(width, height, text, fontSize)
 	local bu = CreateFrame("Button", nil, self)
@@ -435,7 +468,8 @@ function B:CreateDropDown(width, height, data)
 	local dd = CreateFrame("Frame", nil, self)
 	dd:SetSize(width, height)
 	B.CreateBD(dd, .3)
-	dd.Text = B.CreateFS(dd, 14, "")
+	dd.Text = B.CreateFS(dd, 14, "", false, "LEFT", 5, 0)
+	dd.Text:SetPoint("RIGHT", -5, 0)
 	dd.options = {}
 
 	local bu = CreateFrame("Button", nil, dd)
@@ -450,6 +484,7 @@ function B:CreateDropDown(width, height, data)
 	local list = CreateFrame("Frame", nil, dd)
 	list:SetPoint("TOP", dd, "BOTTOM")
 	B.CreateBD(list, 1)
+	list:Hide()
 	bu:SetScript("OnShow", function() list:Hide() end)
 	bu:SetScript("OnClick", function()
 		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
@@ -487,7 +522,8 @@ function B:CreateDropDown(width, height, data)
 		opt[i]:SetSize(width - 8, height)
 		B.CreateBD(opt[i], .3)
 		opt[i]:SetBackdropBorderColor(1, 1, 1, .2)
-		B.CreateFS(opt[i], 14, j, false, "LEFT", 5, 0)
+		local text = B.CreateFS(opt[i], 14, j, false, "LEFT", 5, 0)
+		text:SetPoint("RIGHT", -5, 0)
 		opt[i].text = j
 		opt[i]:SetScript("OnClick", optOnClick)
 		opt[i]:SetScript("OnEnter", optOnEnter)

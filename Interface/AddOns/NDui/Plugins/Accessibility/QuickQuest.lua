@@ -11,10 +11,10 @@ B.CreateCB(mono, .25)
 mono.text = B.CreateFS(mono, 14, L["Auto Quest"], false, "LEFT", 25, 0)
 mono:RegisterEvent("PLAYER_LOGIN")
 mono:SetScript("OnEvent", function(self)
-	self:SetChecked(NDuiDB["Misc"].AutoQuest)
+	self:SetChecked(NDuiDB["Misc"]["AutoQuest"])
 end)
 mono:SetScript("OnClick", function(self)
-	NDuiDB["Misc"].AutoQuest = self:GetChecked()
+	NDuiDB["Misc"]["AutoQuest"] = self:GetChecked()
 end)
 
 -- Function
@@ -26,7 +26,7 @@ local quests, choiceQueue = {}
 function QuickQuest:Register(event, func)
 	self:RegisterEvent(event)
 	self[event] = function(...)
-		if NDuiDB["Misc"].AutoQuest then
+		if NDuiDB["Misc"]["AutoQuest"] then
 			if(not IsShiftKeyDown()) then
 				func(...)
 			end
@@ -67,6 +67,8 @@ local ignoreQuestNPC = {
 	[103792] = true,	-- 格里伏塔
 	[101880] = true,	-- 泰克泰克
 	[141584] = true,	-- 祖尔温
+	[142063] = true,	-- 特兹兰
+	[143388] = true,	-- 德鲁扎
 }
 
 local function GetQuestLogQuests(onlyComplete)
@@ -314,12 +316,20 @@ local itemBlacklist = {
 	[31664] = 88604, -- Nat's Fishing Journal
 }
 
+local ignoreProgressNPC = {
+	[119388] = true,
+	[127037] = true,
+	[126954] = true,
+	[124312] = true,
+	[141584] = true,
+}
+
 QuickQuest:Register("QUEST_PROGRESS", function()
 	if(IsQuestCompletable()) then
 		local id, _, worldQuest = GetQuestTagInfo(GetQuestID())
 		if id == 153 or worldQuest then return end
-		-- 阿古斯的随从兑换
-		if GetNPCID() == 119388 or GetNPCID() == 127037 or GetNPCID() == 126954 or GetNPCID() == 124312 then return end
+		local npcID = GetNPCID()
+		if ignoreProgressNPC[npcID] then return end
 
 		local requiredItems = GetNumQuestItems()
 		if(requiredItems > 0) then
@@ -382,8 +392,9 @@ QuickQuest:Register("QUEST_COMPLETE", function()
 			end
 		end
 
-		if(bestIndex) then
-			QuestInfoItem_OnClick(QuestInfoRewardsFrame.RewardButtons[bestIndex])
+		local button = bestIndex and QuestInfoRewardsFrame.RewardButtons[bestIndex]
+		if button then
+			QuestInfoItem_OnClick(button)
 		end
 	end
 end)

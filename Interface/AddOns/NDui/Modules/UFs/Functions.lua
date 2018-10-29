@@ -85,11 +85,11 @@ function UF:CreateHeader(self)
 	self.Highlight = hl
 
 	self:RegisterForClicks("AnyUp")
-	self:SetScript("OnEnter", function()
+	self:HookScript("OnEnter", function()
 		UnitFrame_OnEnter(self)
 		self.Highlight:Show()
 	end)
-	self:SetScript("OnLeave", function()
+	self:HookScript("OnLeave", function()
 		UnitFrame_OnLeave(self)
 		self.Highlight:Hide()
 	end)
@@ -130,7 +130,7 @@ function UF:CreateHealthText(self)
 	local textFrame = CreateFrame("Frame", nil, self)
 	textFrame:SetAllPoints()
 
-	local name = B.CreateFS(textFrame, retVal(self, 13, 12, 12, 11), "", false, "LEFT", 3, -1)
+	local name = B.CreateFS(textFrame, retVal(self, 13, 12, 12, 10), "", false, "LEFT", 3, -1)
 	name:SetJustifyH("LEFT")
 	if self.mystyle == "raid" then
 		name:SetWidth(self:GetWidth()*.95)
@@ -152,11 +152,13 @@ function UF:CreateHealthText(self)
 		self:Tag(name, "[color][name][afkdnd]")
 	elseif self.mystyle == "nameplate" then
 		self:Tag(name, "[nplevel][name]")
+	elseif self.mystyle == "arena" then
+		self:Tag(name, "[arenaspec] [color][name]")
 	else
 		self:Tag(name, "[color][name]")
 	end
 
-	local hpval = B.CreateFS(textFrame, retVal(self, 14, 13, 13, 14), "", false, "RIGHT", -3, -1)
+	local hpval = B.CreateFS(textFrame, retVal(self, 14, 13, 13, NDuiDB["Nameplate"]["FullHealth"] and 12 or 14), "", false, "RIGHT", -3, -1)
 	if self.mystyle == "raid" then
 		hpval:SetPoint("RIGHT", -3, -7)
 		if NDuiDB["UFs"]["HealthPerc"] then
@@ -170,8 +172,6 @@ function UF:CreateHealthText(self)
 	else
 		self:Tag(hpval, "[hp]")
 	end
-
-	self.nameFrame = textFrame
 end
 
 function UF:CreatePowerBar(self)
@@ -509,14 +509,14 @@ local function customFilter(element, unit, button, name, _, _, _, _, _, caster, 
 	elseif style == "nameplate" then
 		if UnitIsUnit("player", unit) then
 			return false
-		elseif C.BlackList and C.BlackList[spellID] then
+		elseif NDuiADB["NameplateFilter"][2][spellID] or C.BlackList[spellID] then
 			return false
 		elseif element.showStealableBuffs and isStealable and not UnitIsPlayer(unit) then
 			return true
-		elseif C.WhiteList and C.WhiteList[spellID] then
+		elseif NDuiADB["NameplateFilter"][1][spellID] or C.WhiteList[spellID] then
 			return true
 		else
-			return (NDuiDB["Nameplate"]["AllAuras"] and nameplateShowAll) or (caster == "player" or caster == "pet" or caster == "vehicle")
+			return nameplateShowAll or (caster == "player" or caster == "pet" or caster == "vehicle")
 		end
 	elseif (element.onlyShowPlayer and button.isPlayer) or (not element.onlyShowPlayer and name) then
 		return true
@@ -641,8 +641,8 @@ end
 local margin = C.UFs.BarMargin
 local width, height = unpack(C.UFs.BarSize)
 
-local function postUpdateClassPower(element, cur, max, diff, powerType, event)
-	if diff or event == "ClassPowerEnable" then
+local function postUpdateClassPower(element, cur, max, diff, powerType)
+	if diff then
 		for i = 1, 6 do
 			element[i]:SetWidth((width - (max-1)*margin)/max)
 		end

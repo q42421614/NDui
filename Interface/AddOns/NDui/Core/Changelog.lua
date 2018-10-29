@@ -3,23 +3,20 @@ local B, C, L, DB = unpack(ns)
 if DB.Client ~= "zhCN" then return end
 
 local hx = {
-	"AuroraClassic更新至1.8.11；",
+	"AuroraClassic更新至1.10.6；",
 	"更新技能及团本法术监控；",
-	"添加动作条缩放选项；",
-	"优化SHIFT+左键复制名字的功能；",
-	"公会信息条的复制及邀请跟随快捷键；",
-	"订单及补给需求的世界任务不再通报；",
-	"添加选项只播放任务完成的提示音；",
-	"萨满，痛苦术及射击猎的职业助手调整；",
-	"聊天过滤更新，屏蔽WQT的自动邀请；",
-	"在交易窗口上显示目标信息；",
-	"界面美化更新，移除ExtraCD插件美化；",
-	"姓名板调整；",
-	"打断及技能监控触发器等支持宠物来源；",
-	"打断提示默认只在非随机的副本中生效；",
-	"移除工程移形换影装置通报的功能；",
-	"控制台及本地文本更新；",
-	"部分潜在的污染修正。",
+	"现在会自动将DBM显示的法术加到姓名板白名单中；",
+	"更新特殊目标染色列表；",
+	"添加Details的皮肤；",
+	"Skada皮肤微调；",
+	"更新oUF核心，调整竞技场框体的名字获取；",
+	"Alreadyknown调整，支持宠物的收集信息；",
+	"背包调整，修复英文语系下背包分类异常的问题；",
+	"暴雪框体的隐藏调整，防止污染；",
+	"控制台优化，团队框体减益和快速施法有了独立窗口。",
+	"部分选项调整为账号共享；",
+	"本地文本更新；",
+	"更新版本检测的逻辑。",
 }
 
 local f
@@ -58,7 +55,6 @@ end
 
 local function compareToShow(event)
 	if HelloWorld then return end
-	if not NDuiADB["Changelog"] then NDuiADB["Changelog"] = {} end
 
 	local old1, old2 = string.split(".", NDuiADB["Changelog"].Version or "")
 	local cur1, cur2 = string.split(".", DB.Version)

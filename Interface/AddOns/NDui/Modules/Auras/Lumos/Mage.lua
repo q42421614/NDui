@@ -20,15 +20,6 @@ local function UpdateDebuff(button, spellID, auraID, cooldown)
 	return module:UpdateAura(button, "target", auraID, "HARMFUL", spellID, cooldown)
 end
 
-local function UpdateSpellStatus(button, spellID)
-	button.Icon:SetTexture(GetSpellTexture(spellID))
-	if IsUsableSpell(spellID) then
-		button:SetAlpha(1)
-	else
-		button:SetAlpha(.5)
-	end
-end
-
 local function UpdateTotemAura(button, texture, spellID)
 	return module:UpdateTotemAura(button, texture, spellID)
 end
@@ -122,7 +113,7 @@ function module:ChantLumos(self)
 		do
 			local button = self.bu[5]
 			if IsPlayerSpell(199786) then
-				UpdateBuff(button, 199786, 199844)
+				UpdateBuff(button, 199786, 205473)
 			elseif IsPlayerSpell(205021) then
 				UpdateCooldown(button, 205021, true)
 			else

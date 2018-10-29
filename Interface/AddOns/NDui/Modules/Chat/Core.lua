@@ -164,6 +164,17 @@ function module:WhipserInvite()
 	B:RegisterEvent("CHAT_MSG_BN_WHISPER", onChatWhisper)
 end
 
+local function updateTimestamp()
+	-- Timestamp
+	local greyStamp = DB.GreyColor.."[%H:%M:%S]|r "
+	if NDuiADB["Timestamp"] then
+		SetCVar("showTimestamps", greyStamp)
+	elseif GetCVar("showTimestamps") == greyStamp then
+		SetCVar("showTimestamps", "none")
+	end
+end
+B.UpdateTimestamp = updateTimestamp
+
 function module:OnLogin()
 	for i = 1, NUM_CHAT_WINDOWS do
 		skinChat(_G["ChatFrame"..i])
@@ -217,6 +228,13 @@ function module:OnLogin()
 		end
 	end)
 
+	-- Fix chatframe anchor after scaling
+	if NDuiDB["Chat"]["Lock"] then
+		B:RegisterEvent("UI_SCALE_CHANGED", function()
+			ChatFrame1:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 0, 28)
+		end)
+	end
+
 	-- Add Elements
 	self:ChatFilter()
 	self:ChannelRename()
@@ -224,6 +242,7 @@ function module:OnLogin()
 	self:ChatCopy()
 	self:UrlCopy()
 	self:WhipserInvite()
+	updateTimestamp()
 
 	-- ProfanityFilter
 	if not BNFeaturesEnabledAndConnected() then return end
