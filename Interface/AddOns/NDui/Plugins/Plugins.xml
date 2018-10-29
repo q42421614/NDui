@@ -1,4 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Include file="Accessibility\Accessibility.xml"/>
-	<Include file="yClassColors\yClassColors.xml"/>
-</Ui>
